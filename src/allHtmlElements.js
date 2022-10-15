@@ -142,4 +142,4 @@ const isHtmlElement = (tag) => {
     return allHtmlElements.indexOf(tag) > -1;
 }
 
-exports.isHtmlElement = isHtmlElement;
+export default isHtmlElement;

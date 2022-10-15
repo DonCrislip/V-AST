@@ -2,7 +2,8 @@
   "name": "@doncrislip/v-lac",
   "version": "0.0.1",
   "description": "V•LAC: Visual Learning & Auditing of your Code galaxy",
-  "main": "index.js",
+  "main": "bin/index.js",
+  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -17,6 +18,11 @@
   },
   "homepage": "https://github.com/DonCrislip/V-LAC#readme",
   "dependencies": {
-    "@doncrislip/simpleutils": "^1.0.7"
+    "@doncrislip/simpleutils": "^1.0.7",
+    "acorn": "^8.8.0",
+    "htmlparser2": "^8.0.1"
+  },
+  "bin": {
+    "v-lac": "./bin/index.js"
   }
 }

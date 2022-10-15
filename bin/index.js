@@ -1,3 +1,5 @@
+#! /usr/bin/env node
+
 /**
  * V•LAC : Visual Learning & Accessing of your Code galaxy
  * Objective: see how js/vue files are interconnected via imports and methods as well as dead code
@@ -13,16 +15,21 @@
  * - hide/show code planets
  */
 
-const {writeFile, readFileSync} = require('fs');
-const path = require('path');
-const acorn = require('acorn');
-const htmlparser2 = require('htmlparser2');
-const config = require(`${process.cwd()}/autoDoc.config.js`).config
-const isHtmlElement = require('z_autoDoc/allHtmlElements.js').isHtmlElement
-const guidGenerator = require('z_autoDoc/guidGenerator.js').guidGenerator
+import {writeFile, readFileSync} from 'fs'
+import { parse, normalize } from "path";
+import { fileURLToPath } from "url";
+import * as acorn from 'acorn'
+import * as htmlparser2 from 'htmlparser2'
+import { guidGenerator } from '@doncrislip/simpleutils'
+import config from '../v-lac.config.js'
+import isHtmlElement from '../src/allHtmlElements.js'
+
+const __dirname = fileURLToPath(new URL('.', import.meta.url));
 
 const aliases = config.aliases
 const baseDir = config.baseDir
+
+const ENTRY_POINT = parse(process.argv.slice(2)[0])
 
 const MODULE = {
     id: null,
@@ -77,11 +84,11 @@ const API_LITERAL = ['dvsvc', 'nsvc']
 const REST_VERBS = ['GET', 'POST', 'PUT', 'DELETE']
 const entryPoint = {
     type: 'module',
-    name: 'scouting_new_docImports',
-    id: 'scouting_new',
-    ext: 'js',
+    name: ENTRY_POINT.name,
+    id: ENTRY_POINT.name,
+    ext: ENTRY_POINT.ext,
     importNames: [],
-    path: `${__dirname}/scouting_new/`,
+    path: ENTRY_POINT.dir,
     parents: [],
     children: [],
     methods: [],
@@ -427,7 +434,7 @@ const init =  (parent) => {
                 parent.ext === 'svg' ||
                 parent.ext === 'css') {return resolve('nothing') };
             
-            const fullFilePath = `${parent.path}${parent.name}${parent.ext ? '.' + parent.ext : ''}`;
+            const fullFilePath = `${parent.path}/${parent.name}${parent.ext}`;
             console.log(fullFilePath)
             const fileBuffer = readFileSync(fullFilePath)
             console.log('has path')
@@ -437,7 +444,7 @@ const init =  (parent) => {
             const modules = [];
             let fileStrArr = file.split('\n');
             parent.size = fileStrArr.length;
-            console.log('parent size', parent.size)
+            console.log(fileStrArr)
             if (parent.ext === 'vue') {
                 const startTemplate = fileStrArr.findIndex(o => o.includes('<template>'))
                 const lastIndex = fileStrArr.filter(o => o.includes('</template>'));

@@ -20,7 +20,9 @@
   "dependencies": {
     "@doncrislip/simpleutils": "^1.0.7",
     "acorn": "^8.8.0",
-    "htmlparser2": "^8.0.1"
+    "acorn-jsx": "^5.3.2",
+    "htmlparser2": "^8.0.1",
+    "typescript": "^4.8.4"
   },
   "bin": {
     "v-lac": "./bin/index.js"

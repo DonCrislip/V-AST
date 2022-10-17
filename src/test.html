@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html style="height: 100%">
+<head>
+	<meta charset="UTF-8">
+	<title></title>
+    <style>
+        body {
+            box-shadow: inset 0 0 135px 10px #000;
+            background-color: #222;
+            overflow: hidden;
+            font-family: 'calibri', arial;
+            font-weight: lighter;
+            color: #fff;
+        }
+        select {
+            border: 1px solid #fff;
+            border-radius: 5px;
+            background-color: transparent;
+            color: #fff;
+            padding: 5px 20px;
+        }
+        #info {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 300px;
+            height: calc(100% - 10px);
+            background: #222;
+            border-left: 1px solid #666;
+            padding: 5px;
+            box-shadow: -3px 0 20px 5px rgba(0,0,0,1);
+        }
+        #info h2 {
+            text-align: center;
+            font-weight: lighter;
+        }
+        #info p {
+            margin: 5px 0;
+        }
+        #info b {
+            font-weight: normal;
+        }
+        #info .binding-wrapper {
+            text-align: center;
+        }
+        #info .down-arrow svg {
+            width: 40px;
+            fill: #b6f030;
+        }
+        #info .info-wrapper, 
+        #info .binding-wrapper {
+            height: calc(100% - 90px);
+            overflow-y: auto;
+        }
+        #info .info-wrapper::-webkit-scrollbar, 
+        #info .binding-wrapper::-webkit-scrollbar {
+            width: 5px;
+        }
+        #info .info-wrapper::-webkit-scrollbar:horizontal,
+        #info .binding-wrapper::-webkit-scrollbar:horizontal {
+            height: 5px;
+        }
+        #info .info-wrapper::-webkit-scrollbar-corner, 
+        #info .binding-wrapper::-webkit-scrollbar-corner {
+            display: none;
+        }
+        #info .info-wrapper::-webkit-scrollbar-thumb,
+        #info .binding-wrapper::-webkit-scrollbar-thumb {
+            width: 5px;
+            background-color: #d287ff;
+            border-radius: 5px;
+        }
+        #info .info-tag-name {
+            color: #fff;
+        }
+        #info .info-key-arrow {
+            color: #d287ff;
+        }
+        #info .info-value-arrow {
+            color: #b6f030;
+        }
+        #info .parent-list {
+            margin-bottom: 10px;
+        } 
+        #info .child-list {
+            margin-bottom: 10px;
+        }
+        #info .binding-list {
+            margin-bottom: 10px;
+        }
+        #info .binding-list .item {
+            margin-top: 8px;
+        }
+        #info .item {
+            color: #ccc;
+            cursor: pointer;
+        }
+        #info .left, #info .right {
+            display: inline-flex;
+            padding: 0 5px;
+        }
+        #info .left {
+            width: 50%;
+            justify-content: end;
+        }
+        #info hr {
+            border-color: #666;
+            border-style: solid;
+        }
+        #info em {
+            font-style: normal;
+            color: #d287ff;
+        }
+        #info a, #info a:hover, #info a:visited {
+            color: #83C9D8;
+            text-decoration: none;
+        }
+        #info a.issue, #info a.issue:hover, #info a.issue:visited {
+            color: rgb(219, 64, 47);
+        }
+        #chart {
+            height: 100%;
+        }
+        #chart .module-name {
+            font-size: 6px;
+            font-weight: normal;
+            fill: #fff;
+            cursor: pointer;
+        }
+        #chart circle {
+            stroke: #000;
+            cursor: pointer;
+        }
+        #chart circle.selected {
+            stroke: gold;
+        }
+        #chart line.selected {
+            stroke: gold;
+            stroke-opacity: 1;
+            /* animation: pulse 10s infinite;
+            -webkit-animation: pulse 10s infinite; */
+        }
+        #chart line.selected.target {
+            stroke: #b6f030;
+        }
+        #chart line.selected.source {
+            stroke: #d287ff;
+        }
+        #chart .satellite {
+            transform: scale(0.1);
+            fill: #ccc;
+            cursor: pointer;
+        }
+        .logo {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            width: 100px;
+        }
+        .logo svg {
+            filter: drop-shadow(0px 2px 1px rgb(0 0 0 / 1));
+        }
+        .code-system-select {
+            position: fixed;
+            top: 20px;
+            left: 0;
+            right: 0;
+            margin: auto;
+            width: 100px;
+        }
+        @keyframes pulse {
+            0%   { stroke: #ff0000 }
+            17%  { stroke: #ffff00 }
+            33%  { stroke: #00ff00 }
+            50%  { stroke: #00ffff }
+            67%  { stroke: #0000ff }
+            83%  { stroke: #ff00ff }
+            100% { stroke: #ff0000 }
+            }
+
+            @-webkit-keyframes pulse {
+            0%   { stroke: #ff0000 }
+            17%  { stroke: #ffff00 }
+            33%  { stroke: #00ff00 }
+            50%  { stroke: #00ffff }
+            67%  { stroke: #0000ff }
+            83%  { stroke: #ff00ff }
+            100% { stroke: #ff0000 }
+        }
+    </style>
+</head>
+<body style="height: 100%; margin: 0;">
+    <div id="chart"></div>
+    <div class="logo">
+        <?xml version="1.0" encoding="UTF-8"?><svg id="a" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 290.23 136.19"><polygon points="6.69 30.55 36.21 91.98 65.93 30.55 70.32 30.55 36.21 99.16 1.9 30.55 6.69 30.55" style="fill:#af78b9;"/><polygon points="231.54 99.96 197.23 31.34 163.12 99.96 167.51 99.96 197.23 38.52 226.76 99.96 231.54 99.96" style="fill:#af78b9;"/><path d="M104.83,100h55.89v-3.99h-51.7V30.98h-4.39c.6,0,.2,69.02,.2,69.02Z" style="fill:#af78b9;"/><path d="M259.51,96.42c-17.07,0-30.91-13.84-30.91-30.91s13.84-30.91,30.91-30.91c5.52,0,10.7,1.46,15.19,3.99-.6-1.49-1.05-3.05-1.53-4.59-4.19-1.82-8.8-2.83-13.66-2.83-18.96,0-34.33,15.37-34.33,34.33s15.37,34.33,34.33,34.33c11.63,0,21.91-5.79,28.12-14.64-.58-1.38-.95-2.93-1.25-4.42-5.32,9.34-15.35,15.63-26.87,15.63Z" style="fill:#af78b9;"/><path d="M80.12,52.56c-8.32,0-15.07,6.75-15.07,15.07s6.75,15.07,15.07,15.07,15.07-6.75,15.07-15.07-6.75-15.07-15.07-15.07Zm0,26.08c-6.08,0-11.01-4.93-11.01-11.01s4.93-11.01,11.01-11.01,11.01,4.93,11.01,11.01-4.93,11.01-11.01,11.01Z" style="fill:#b6f030;"/><path d="M143.75,3.99c3.95,0,7.81,.38,11.57,1.07,.6-.68,1.19-1.36,1.79-2.03-4.31-.89-8.78-1.36-13.36-1.36-31.19,0-57.3,21.69-64.11,50.81h2.38C88.78,24.66,113.84,3.99,143.75,3.99Z" style="fill:#464646;"/><path d="M164.46,127.61c-6.49,2.24-13.46,3.47-20.71,3.47-29.94,0-55.03-20.72-61.76-48.59h-2.38c6.77,29.17,32.91,50.91,64.14,50.91,7.84,0,15.36-1.38,22.33-3.89-.53-.64-1.08-1.27-1.62-1.9Z" style="fill:#464646;"/></svg>
+	</div>
+    <div id="vue-app">
+        <div class="code-system-select">
+            <select v-model="selectedEntryPoint" @change="handleEntryPointChange(selectedEntryPoint)">
+                <option :value="null">Entire Code Galaxy</option>
+                <option v-for="entryPoint in entryPoints" :key="entryPoint" :value="entryPoint">{{entryPoint}}</option>
+            </select>
+        </div>
+        <div id="info" v-if="obj">
+            <template v-if="obj.type === 'module'">
+                <h2><a :href="`https://gitlab.indiansfrontoffice.com/baseball-systems/front-end/dvweb/-/blob/beta/${obj.path}${obj.name}.${obj.ext}`" target="_blank">{{obj.name}}</a></h2>
+                <hr />
+                <div class="info-wrapper">
+                    <p><span class="left"># of Lines of code: </span><span class="right"><b>{{obj.size}}</b></span></p>
+                    <p><span class="left"># of Methods: </span><span class="right"><b>{{obj.methods.length}}</b></span></p>
+                    <p><span class="left"># of Dead methods: </span><span class="right"><b>{{obj.methods.filter(o => o.implementationsCount === 0).length}}</b></span></p>
+                    <hr />
+                    <b>List of parents ({{obj.parents.length}}):</b>
+                    <div class="parent-list">
+                        <div v-for="parent in obj.parents" :key="parent.id" class="item" @click="selectPlanet($event, parent)">{{parent.name}}</div>
+                    </div>
+                    <hr />
+                    <b>List of children ({{obj.children.length}}):</b>
+                    <div class="child-list">
+                        <div v-for="child in obj.children" :key="`${obj.name}-${child.name}`" class="item" @click="selectPlanet($event, child)">{{child.name}}</div>
+                    </div>
+                    <hr />
+                    <b>List of methods ({{obj.methods.length}}):</b>
+                    <div class="method-list">
+                        <div v-for="(method, i) in obj.methods" :key="`${obj.name}-${method.name}-${i}`" class="item">
+                            <a :class="{'issue': method.implementationsCount < 1}" :href="`https://gitlab.indiansfrontoffice.com/search?search=${method.name}&project_id=30&group_id=138&nav_source=navbar&repository_ref=beta`" target="_blank">
+                                {{method.name}}{{method.implementationsCount < 1 ? ' (dead)' : null}} {{method.size}}
+                            </a>
+                        </div>
+                    </div>
+                    <hr />
+                    <b>List of component bindings ({{componentBindings.length}}):</b>
+                    <div class="binding-list">
+                        <div v-for="(binding, i) in componentBindings" :key="`${obj.name}-${binding.name}-${i}`" class="item">
+                            <span class="info-tag-name">{{binding.name}}{{binding.attrId ? `#${binding.attrId}` : null}}</span>
+                            <div v-for="(bind, j) in binding.vBind" :key="`${obj.name}-${binding.name}-${i}-${bind.key}-${j}`">
+                                <span class="info-key-arrow">---></span> {{bind.key}}<br/>
+                                <span class="info-value-arrow">------></span> {{bind.value}}
+                            </div>
+                        </div>
+                    </div>
+                    <hr />
+                    <b>List of element bindings ({{elementBindings.length}}):</b>
+                    <div class="binding-list">
+                        <div v-for="(binding, i) in elementBindings" :key="`${obj.name}-${binding.name}-${i}`" class="item">
+                            <span class="info-tag-name">{{binding.name}}{{binding.attrId ? `#${binding.attrId}` : null}}</span>
+                            <div v-for="(bind, j) in binding.vBind" :key="`${obj.name}-${binding.name}-${i}-${bind.key}-${j}`">
+                                <span class="info-key-arrow">---></span> {{bind.key}}<br/>
+                                <span class="info-value-arrow">------></span> {{bind.value}}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </template>
+            <template v-else-if="obj.type === 'endpoint'">
+                <h2><a :href="`https://gitlab.indiansfrontoffice.com/search?search=${obj.name}&project_id=30&group_id=138&nav_source=navbar&repository_ref=beta`" target="_blank">{{obj.name}}</a></h2>
+                <hr />
+                <div class="info-wrapper">
+                    <b>List of verbs ({{obj.verbs.length}}):</b>
+                    <div class="verb-list">
+                        <div v-for="(verb, i) in obj.verbs" :key="`${obj.name}-${verb}-${i}`" class="item">
+                            {{verb}}
+                        </div>
+                        <div v-if="!obj.verbs.length">GET</div>
+                    </div>
+                    <hr />
+                    <b>List of children ({{obj.children.length}}):</b>
+                    <div class="child-list">
+                        <div v-for="child in obj.children" :key="`${obj.name}-${child.id}`" class="item">
+                            <a :href="`https://gitlab.indiansfrontoffice.com/search?search=${child.name}&project_id=30&group_id=138&nav_source=navbar&repository_ref=beta`" target="_blank">
+                                {{child.name}}
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </template>
+            <template v-else>
+                <h2>{{obj.key}}</h2>
+                <hr />
+                <div class="binding-wrapper">
+                    <p>Parent: <a :href="`https://gitlab.indiansfrontoffice.com/baseball-systems/front-end/dvweb/-/blob/beta/${obj.parentPath}${obj.parent}.${obj.parentExt}`" target="_blank">{{obj.parent}}</a></p>
+                    <p>Data Prop: <em>{{obj.value}}</em></p>
+                    <p class="down-arrow">
+                        <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+                                x="0px" y="0px" viewBox="0 0 20 20" enable-background="new 0 0 20 20" xml:space="preserve">
+                        <path d="M12.505,8.698L10,11L7.494,8.698c-0.198-0.196-0.518-0.196-0.718,0c-0.197,0.196-0.197,0.515,0,0.71l2.864,2.807
+                            c0.199,0.196,0.52,0.196,0.717,0l2.864-2.807c0.199-0.195,0.198-0.514,0-0.71C13.024,8.502,12.704,8.502,12.505,8.698z M10,0.4
+                            c-5.302,0-9.6,4.298-9.6,9.6c0,5.303,4.298,9.6,9.6,9.6s9.6-4.297,9.6-9.6C19.6,4.698,15.302,0.4,10,0.4z M10,18.354
+                            c-4.615,0-8.354-3.74-8.354-8.354c0-4.614,3.739-8.354,8.354-8.354c4.613,0,8.354,3.74,8.354,8.354
+                            C18.354,14.614,14.613,18.354,10,18.354z"/>
+                        </svg>
+                    </p>
+                    <p>Child: <a :href="`https://gitlab.indiansfrontoffice.com/baseball-systems/front-end/dvweb/-/blob/beta/${obj.childPath}${obj.child}.${obj.childExt}`" target="_blank">{{obj.child}}</a></p>
+                    <p>{{obj.key}}="<em>{{obj.value}}</em>"</p>
+                </div>
+            </template>
+        </div>
+    </div>
+</body>
+<script src="/dv/docs/js/test.min.js"></script>
+<script src="/dv/docs/js/test-vc.min.js"></script>
+</html>

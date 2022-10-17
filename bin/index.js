@@ -15,21 +15,26 @@
  * - hide/show code planets
  */
 
+import { createRequire } from "module";
 import {writeFile, readFileSync} from 'fs'
-import { parse, normalize } from "path";
-import { fileURLToPath } from "url";
+import * as ts from "typescript"
+import path from "path";
 import * as acorn from 'acorn'
+import jsx from 'acorn-jsx'
 import * as htmlparser2 from 'htmlparser2'
-import { guidGenerator } from '@doncrislip/simpleutils'
-import config from '../v-lac.config.js'
+import { guidGenerator, traverseObj } from '@doncrislip/simpleutils'
 import isHtmlElement from '../src/allHtmlElements.js'
+import { config } from "process";
 
-const __dirname = fileURLToPath(new URL('.', import.meta.url));
+const require = createRequire(import.meta.url);
+const __dirname = process.cwd();
+const CONFIG = require(`${__dirname}/v-lac.config.js`)
+const ALIASES = CONFIG.aliases
 
-const aliases = config.aliases
-const baseDir = config.baseDir
-
-const ENTRY_POINT = parse(process.argv.slice(2)[0])
+let allModules = []
+let allEndpoints = []
+let promises = []
+let entryPoint = {}
 
 const MODULE = {
     id: null,
@@ -57,7 +62,6 @@ const ENDPOINT = {
     children: [],
     size: 0
 }
-const ENDPOINTS = []
 const METHOD = {
     type: 'method',
     id: null,
@@ -82,23 +86,6 @@ const CLASSDECORATION = {
 }
 const API_LITERAL = ['dvsvc', 'nsvc']
 const REST_VERBS = ['GET', 'POST', 'PUT', 'DELETE']
-const entryPoint = {
-    type: 'module',
-    name: ENTRY_POINT.name,
-    id: ENTRY_POINT.name,
-    ext: ENTRY_POINT.ext,
-    importNames: [],
-    path: ENTRY_POINT.dir,
-    parents: [],
-    children: [],
-    methods: [],
-    elements: [],
-    endPoints: [],
-    size: 0
-}
-const promises = []
-
-let MODULES = [entryPoint];
 
 const getImports = (data) => {
     return data.body.filter(o => o.type === 'ImportDeclaration');
@@ -108,7 +95,7 @@ const getModule = (obj, parent) => {
     const module = JSON.parse(JSON.stringify(MODULE));
     const pathObj = path.parse(obj.source.value);
     module.name = pathObj.name;
-    module.ext = pathObj.ext ? pathObj.ext.substring(1) : pathObj.ext; // TODO: Need to handle if extenstion doesn't exist
+    module.ext = pathObj.ext //? pathObj.ext.substring(1) : pathObj.ext; // TODO: Need to handle if extenstion doesn't exist
     module.path = getFullPath(obj.source.value, parent);
     module.id = `${module.name}-${module.path}`;
     if (!parent.name.includes('docImports')) {
@@ -126,12 +113,11 @@ const getMethodsAndEndpoints = (data, parent) => {
     const methods = [];
     const callExpressions = [];
     const classes = []
-    console.log('getting methods')
     data.body.forEach(obj => {
         let currentMethod = {};
         let end = 0
         let endpointFound = null;
-        const arr = traverseObjForKeyVal(obj, (o, p) => {
+        const arr = traverseObj(obj, (o, p) => {
             // CLASSES
             if (o.type === 'ClassDeclaration') {
                 classes.push({
@@ -161,7 +147,7 @@ const getMethodsAndEndpoints = (data, parent) => {
             }
             else if (!o.end || (o.end < end && endpointFound !== null)) {
                 if (REST_VERBS.indexOf(o.value) > -1) {
-                    const endpoint = ENDPOINTS.find(o => o.id === endpointFound)
+                    const endpoint = allEndpoints.find(o => o.id === endpointFound)
                     if (endpoint.verbs.indexOf(o.value) < 0) {
                         endpoint.verbs.push(o.value)
                     }
@@ -172,10 +158,12 @@ const getMethodsAndEndpoints = (data, parent) => {
             }
         });
     });
+
     return {methods: methods, callExpressions: callExpressions, classes: classes}
 }
 
 const getCallExpressions = (o, parent, currentMethod, end) => {
+    let endpointFound = null
     end = o.end
     const callExpression = JSON.parse(JSON.stringify(CALLEXPRESSION));
     if (o.callee?.name) {
@@ -185,7 +173,7 @@ const getCallExpressions = (o, parent, currentMethod, end) => {
         callExpression.name = o.callee?.property?.name
     }
     callExpression.id = guidGenerator()
-    for (arg of o.arguments) {
+    for (const arg of o.arguments) {
         if (arg.type === 'ThisExpression') {
             callExpression.arguments.push({
                 key: 'this',
@@ -195,8 +183,8 @@ const getCallExpressions = (o, parent, currentMethod, end) => {
         else if (arg.type === 'TemplateLiteral') {
             const params = []
             let endpoint = null;
-            for (q of arg.quasis) {
-                for (literal of API_LITERAL) {
+            for (const q of arg.quasis) {
+                for (const literal of API_LITERAL) {
                     if (q.value.raw.includes(literal)) {
                         endpoint = getEndpoint(q.value.raw, literal, parent)
                         endpointFound = endpoint.id
@@ -218,7 +206,7 @@ const getCallExpressions = (o, parent, currentMethod, end) => {
                 if (endpoint.id) return
                 endpoint.id = guidGenerator()
                 endpointFound = endpoint.id
-                ENDPOINTS.push(endpoint)
+                allEndpoints.push(endpoint)
             }
             for (let i = 0; i < arg.expressions.length; i++) {
                 params[i].key = arg.expressions[i].type === 'MemberExpression' ? getExpressionObj(arg.expressions[i]) : arg.expressions[i].name
@@ -227,7 +215,7 @@ const getCallExpressions = (o, parent, currentMethod, end) => {
         else if (arg.type === 'Literal') {
             if (typeof arg.value === 'string') {
                 let endpoint = null;
-                for (literal of API_LITERAL) {
+                for (const literal of API_LITERAL) {
                     if (arg.value.includes(literal)) {
                         endpoint = getEndpoint(arg.value, literal, parent)
                         endpointFound = endpoint.id
@@ -238,7 +226,7 @@ const getCallExpressions = (o, parent, currentMethod, end) => {
                     if (endpoint.id) return
                     endpoint.id = guidGenerator()
                     endpointFound = endpoint.id
-                    ENDPOINTS.push(endpoint)
+                    allEndpoints.push(endpoint)
                 }
             }
             callExpression.arguments.push({
@@ -287,7 +275,7 @@ const getEndpoint = (path, api, parent) => {
     else {
         endpoint.name = splitPath[splitPath.length - 1]
     }
-    const endpointIndex = ENDPOINTS.findIndex(o => o.name === endpoint.name);
+    const endpointIndex = allEndpoints.findIndex(o => o.name === endpoint.name);
     if (endpointIndex < 0) {
         // console.log(endpoint)
         endpoint.children.push({name: parent.name, id: parent.id})
@@ -295,33 +283,33 @@ const getEndpoint = (path, api, parent) => {
     }
     else {
         for (const param of endpoint.params) {
-            ENDPOINTS[endpointIndex].children.push({name: parent.name, id: parent.id})
-            ENDPOINTS[endpointIndex].params.indexOf(param) < 0 ? ENDPOINTS[endpointIndex].params.push(param) : null
+            allEndpoints[endpointIndex].children.push({name: parent.name, id: parent.id})
+            allEndpoints[endpointIndex].params.indexOf(param) < 0 ? allEndpoints[endpointIndex].params.push(param) : null
         }
-        return ENDPOINTS[endpointIndex];
+        return allEndpoints[endpointIndex];
     }
 }
 
-const traverseObjForKeyVal = (obj, func = () => {}) => {
-    const traverse = (obj, parent, func) => {
-        if (obj) {
-            func(obj, parent)
-            for (let key in obj) {
-                if (typeof obj[key] === 'object') {
-                    if (Array.isArray(obj[key])) {
-                        obj[key].forEach(arrObj => {
-                            traverse(arrObj, obj, func)
-                        })
-                    }
-                    else {
-                        traverse(obj[key], obj, func)
-                    }
-                }
-            }
-        }
-    }
-    traverse(obj, null, func);
-}
+// const traverseObjForKeyVal = (obj, func = () => {}) => {
+//     const traverse = (obj, parent, func) => {
+//         if (obj) {
+//             func(obj, parent)
+//             for (let key in obj) {
+//                 if (typeof obj[key] === 'object') {
+//                     if (Array.isArray(obj[key])) {
+//                         obj[key].forEach(arrObj => {
+//                             traverse(arrObj, obj, func)
+//                         })
+//                     }
+//                     else {
+//                         traverse(obj[key], obj, func)
+//                     }
+//                 }
+//             }
+//         }
+//     }
+//     traverse(obj, null, func);
+// }
 
 const getMethodImplementationsCount = (methodName, file) => {
     return file.split(methodName).length - 2;
@@ -346,38 +334,34 @@ const getMethodSize = (methodName, fileStrArr) => {
 
 const getFullPath = (relativePath, parent) => {
     // const bool = relativePath.includes('../skeletalHelpers.js')
-    let parentPath = parent.path;
+    // let parentPath = parent.path;
     const lastIndex = relativePath.lastIndexOf('/');
     relativePath = relativePath.substring(lastIndex, 0);
-    for (let alias in aliases) {
+    for (let alias in ALIASES) {
         if (relativePath.indexOf(alias) > -1) {
-            return `${aliases[alias]}/`;
+            return relativePath.replace(alias, ALIASES[alias]);
         }
     }
-    // console.log(parent.name.includes('docImports'))
-    if (parent.name.includes('_docImports')) {
-        parentPath = parentPath.split(__dirname).join(`${process.cwd()}/${baseDir}`)
-    }
-    const relArr = relativePath.indexOf('../') > -1 ? relativePath.split('../') : relativePath.indexOf('..') > -1 ? ['', ''] : [relativePath.split('./')[1]];
-    const parentArr = parentPath.split('/');
-    let newPath = ''; 
-    if (relArr[0] === undefined) {
-        newPath = parentPath;
-    } 
-    else if (relArr.length > 1) {
-        let str = ''
-        for (let i = 0; i < parentArr.length - relArr.length; i++) {
-            str += parentArr[i] + '/';
-        }
-        newPath = `${str}${relArr[relArr.length - 1]}/`
-        // if (bool) {
-        //     console.log(parentArr.length, newPath)
-        // }
-    } 
-    else {
-        newPath = `${parentPath}${relArr[0]}/`;
-    }
-    return newPath
+    // if (parent.name.includes('_docImports')) {
+    //     parentPath = parentPath.split(__dirname).join(`${process.cwd()}/${baseDir}`)
+    // }
+    // const relArr = relativePath.indexOf('../') > -1 ? relativePath.split('../') : relativePath.indexOf('..') > -1 ? ['', ''] : [relativePath.split('./')[1]];
+    // const parentArr = parentPath.split('/');
+    // let newPath = ''; 
+    // if (relArr[0] === undefined) {
+    //     newPath = parentPath;
+    // } 
+    // else if (relArr.length > 1) {
+    //     let str = ''
+    //     for (let i = 0; i < parentArr.length - relArr.length; i++) {
+    //         str += parentArr[i] + '/';
+    //     }
+    //     newPath = `${str}${relArr[relArr.length - 1]}`
+    // } 
+    // else {
+    //     newPath = `${parentPath}/${relArr[0]}`;
+    // }
+    return path.resolve(parent.path, relativePath)
 }
 
 const parseHtmlForComponentsPropsEvents = (html) => {
@@ -426,26 +410,24 @@ const getChildObj = (module) => {
     }
 }
 
-const init =  (parent) => {
-    promises.push(new Promise(async (resolve, reject) => {
+const init = (parent) => {
+    new Promise(async (resolve, reject) => {
         try {
             if (!parent.ext || 
-                parent.ext === 'scss' ||
-                parent.ext === 'svg' ||
-                parent.ext === 'css') {return resolve('nothing') };
-            
+                parent.ext === '.scss' ||
+                parent.ext === '.svg' ||
+                parent.ext === '.css') {return resolve('nothing') };
             const fullFilePath = `${parent.path}/${parent.name}${parent.ext}`;
-            console.log(fullFilePath)
+            // console.log(fullFilePath)
             const fileBuffer = readFileSync(fullFilePath)
-            console.log('has path')
             let file = fileBuffer.toString();
             let data,
                 html = '';
             const modules = [];
             let fileStrArr = file.split('\n');
             parent.size = fileStrArr.length;
-            console.log(fileStrArr)
-            if (parent.ext === 'vue') {
+            // const tsFile = await ts.createSourceFile(parent.name + parent.ext, readFileSync(fullFilePath).toString(), ts.ScriptTarget.Latest)
+            if (parent.ext === '.vue') {
                 const startTemplate = fileStrArr.findIndex(o => o.includes('<template>'))
                 const lastIndex = fileStrArr.filter(o => o.includes('</template>'));
                 const endTemplate = fileStrArr.lastIndexOf(lastIndex[lastIndex.length - 1])
@@ -457,17 +439,19 @@ const init =  (parent) => {
                 parent.elements = parseHtmlForComponentsPropsEvents(html).sort((a, b) => (a.name > b.name) - (a.name < b.name))
             }
             try {
-                data = acorn.parse(file, {ecmaVersion: 'latest', sourceType: 'module'})
-                console.log('acorn')
+                data = acorn.Parser.extend(jsx()).parse(file, {ecmaVersion: 'latest', sourceType: 'module'})
             }
             catch (error) {
                 console.log(parent.ext)
                 console.log(error)
             }
-            if (parent.name === 'stats.viewmodel') { 
-                writeFile(`./testData.json`, JSON.stringify(data), 'utf8', () => {});
+            let methodsAndEndpoints = {}
+            try {
+                methodsAndEndpoints = getMethodsAndEndpoints(data, parent)
             }
-            const methodsAndEndpoints = getMethodsAndEndpoints(data, parent)
+            catch (error) {
+                console.log(error)
+            }
             parent.methods = methodsAndEndpoints.methods.sort((a, b) => (a.name > b.name) - (a.name < b.name))
             parent.callExpressions = methodsAndEndpoints.callExpressions.sort((a, b) => (a.name > b.name) - (a.name < b.name))
             parent.classes = methodsAndEndpoints.classes.sort((a, b) => (a.name > b.name) - (a.name < b.name))
@@ -479,17 +463,17 @@ const init =  (parent) => {
             const imports = getImports(data);
             imports.forEach(o => {
                 const module = getModule(o, parent);
-                const existingModule = MODULES.find(o => o.id === module.id);
-                if (!module.name.includes('docImports')) {
+                const existingModule = allModules.find(o => o.id === module.id);
+                // if (!module.name.includes('docImports')) {
                     parent.children.push(getChildObj(module))
-                }
+                // }
                 parent.children.sort((a, b) => (a > b) - (a < b))
                 if (existingModule) {
                     existingModule.parents = existingModule.parents.concat(module.parents);
                 }
-                else if (!module.name.includes('docImports')) {
-                    MODULES.push(module)
-                }
+                // else if (!module.name.includes('docImports')) {
+                    allModules.push(module)
+                // }
                 init(module)
             })
             parent.parents.sort((a, b) => (a > b) - (a < b));
@@ -499,30 +483,41 @@ const init =  (parent) => {
             // console.log(error)
             resolve(error)
         }
-    }))
+    })
 
 }
 
-init(MODULES[0]);
+CONFIG.entryPoints.forEach(async entry => {
+    const pathData = path.parse(entry.path)
+    entryPoint = JSON.parse(JSON.stringify(MODULE))
+    entryPoint.name = pathData.name
+    entryPoint.id = pathData.base
+    entryPoint.ext = pathData.ext
+    entryPoint.path = pathData.dir
+    allModules = [entryPoint]
+    promises = []
+    allEndpoints = []
 
-Promise.all(promises).then(all => {
+    init(allModules[0]);
+
     let count = 0
     let childCount = 0
     const classes = []
-    for (const parent of MODULES) {
+    
+    for (const parent of allModules) {
         if (Array.isArray(parent.classes)) {
             for (const pClass of parent.classes) {
                 const allExps = []
-                MODULES.forEach(module => {
+                allModules.forEach(module => {
                     if (!module.callExpressions || module.id === parent.id) return
                     const exps = module.callExpressions.filter(_c => _c?.name === pClass.name).map(exp => exp.id)
                     if (exps.length) {
-                        console.log('children', module.children.findIndex(child => child.id === parent.id) < 0)
+                        // console.log('children', module.children.findIndex(child => child.id === parent.id) < 0)
                         if (module.children.findIndex(child => child.id === parent.id) < 0) {
                             module.children.push(getChildObj(parent))
                             childCount++
                         }
-                        console.log('parent', parent.parents.findIndex(child => child.id === module.id) < 0)
+                        // console.log('parent', parent.parents.findIndex(child => child.id === module.id) < 0)
                         if (parent.parents.findIndex(child => child.id === module.id) < 0) {
                             parent.parents.push(getChildObj(module))
                             childCount++
@@ -535,10 +530,14 @@ Promise.all(promises).then(all => {
             }
         }
     }
-    console.log(count)
-    console.log(childCount)
-    ENDPOINTS.sort((a, b) => (a.name > b.name) - (a.name < b.name));
-    // console.log(ENDPOINTS)
+    console.log('count:', count)
+    console.log('child count', childCount)
+    allEndpoints.sort((a, b) => (a.name > b.name) - (a.name < b.name));
     writeFile(`./classes.json`, JSON.stringify(classes), 'utf8', () => {});
-    writeFile(`./test.json`, JSON.stringify([...ENDPOINTS, ...MODULES]), 'utf8', () => {});
-});
+    console.log(`${entryPoint.path}/${entryPoint.name}.v-lac.json`)
+    writeFile(`${entryPoint.path}/${entryPoint.name}.v-lac.json`, JSON.stringify([...allEndpoints, ...allModules]), 'utf8', () => {});
+    
+})
+
+
+

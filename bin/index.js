@@ -24,7 +24,6 @@ import jsx from 'acorn-jsx'
 import * as htmlparser2 from 'htmlparser2'
 import { guidGenerator, traverseObj } from '@doncrislip/simpleutils'
 import isHtmlElement from '../src/allHtmlElements.js'
-import { config } from "process";
 
 const require = createRequire(import.meta.url);
 const __dirname = process.cwd();
@@ -104,8 +103,6 @@ const getModule = (obj, parent) => {
     module.importNames = obj.specifiers.map((val) => {
         return val.local.name
     });
-    // console.log(module.name)
-    // console.log(module.path)
     return module;
 }
 
@@ -290,27 +287,6 @@ const getEndpoint = (path, api, parent) => {
     }
 }
 
-// const traverseObjForKeyVal = (obj, func = () => {}) => {
-//     const traverse = (obj, parent, func) => {
-//         if (obj) {
-//             func(obj, parent)
-//             for (let key in obj) {
-//                 if (typeof obj[key] === 'object') {
-//                     if (Array.isArray(obj[key])) {
-//                         obj[key].forEach(arrObj => {
-//                             traverse(arrObj, obj, func)
-//                         })
-//                     }
-//                     else {
-//                         traverse(obj[key], obj, func)
-//                     }
-//                 }
-//             }
-//         }
-//     }
-//     traverse(obj, null, func);
-// }
-
 const getMethodImplementationsCount = (methodName, file) => {
     return file.split(methodName).length - 2;
 }
@@ -333,8 +309,6 @@ const getMethodSize = (methodName, fileStrArr) => {
 }
 
 const getFullPath = (relativePath, parent) => {
-    // const bool = relativePath.includes('../skeletalHelpers.js')
-    // let parentPath = parent.path;
     const lastIndex = relativePath.lastIndexOf('/');
     relativePath = relativePath.substring(lastIndex, 0);
     for (let alias in ALIASES) {
@@ -342,25 +316,6 @@ const getFullPath = (relativePath, parent) => {
             return relativePath.replace(alias, ALIASES[alias]);
         }
     }
-    // if (parent.name.includes('_docImports')) {
-    //     parentPath = parentPath.split(__dirname).join(`${process.cwd()}/${baseDir}`)
-    // }
-    // const relArr = relativePath.indexOf('../') > -1 ? relativePath.split('../') : relativePath.indexOf('..') > -1 ? ['', ''] : [relativePath.split('./')[1]];
-    // const parentArr = parentPath.split('/');
-    // let newPath = ''; 
-    // if (relArr[0] === undefined) {
-    //     newPath = parentPath;
-    // } 
-    // else if (relArr.length > 1) {
-    //     let str = ''
-    //     for (let i = 0; i < parentArr.length - relArr.length; i++) {
-    //         str += parentArr[i] + '/';
-    //     }
-    //     newPath = `${str}${relArr[relArr.length - 1]}`
-    // } 
-    // else {
-    //     newPath = `${parentPath}/${relArr[0]}`;
-    // }
     return path.resolve(parent.path, relativePath)
 }
 
@@ -418,7 +373,6 @@ const init = (parent) => {
                 parent.ext === '.svg' ||
                 parent.ext === '.css') {return resolve('nothing') };
             const fullFilePath = `${parent.path}/${parent.name}${parent.ext}`;
-            // console.log(fullFilePath)
             const fileBuffer = readFileSync(fullFilePath)
             let file = fileBuffer.toString();
             let data,
@@ -464,16 +418,12 @@ const init = (parent) => {
             imports.forEach(o => {
                 const module = getModule(o, parent);
                 const existingModule = allModules.find(o => o.id === module.id);
-                // if (!module.name.includes('docImports')) {
-                    parent.children.push(getChildObj(module))
-                // }
+                parent.children.push(getChildObj(module))
                 parent.children.sort((a, b) => (a > b) - (a < b))
                 if (existingModule) {
                     existingModule.parents = existingModule.parents.concat(module.parents);
                 }
-                // else if (!module.name.includes('docImports')) {
-                    allModules.push(module)
-                // }
+                allModules.push(module)
                 init(module)
             })
             parent.parents.sort((a, b) => (a > b) - (a < b));
@@ -512,12 +462,10 @@ CONFIG.entryPoints.forEach(async entry => {
                     if (!module.callExpressions || module.id === parent.id) return
                     const exps = module.callExpressions.filter(_c => _c?.name === pClass.name).map(exp => exp.id)
                     if (exps.length) {
-                        // console.log('children', module.children.findIndex(child => child.id === parent.id) < 0)
                         if (module.children.findIndex(child => child.id === parent.id) < 0) {
                             module.children.push(getChildObj(parent))
                             childCount++
                         }
-                        // console.log('parent', parent.parents.findIndex(child => child.id === module.id) < 0)
                         if (parent.parents.findIndex(child => child.id === module.id) < 0) {
                             parent.parents.push(getChildObj(module))
                             childCount++
@@ -534,9 +482,7 @@ CONFIG.entryPoints.forEach(async entry => {
     console.log('child count', childCount)
     allEndpoints.sort((a, b) => (a.name > b.name) - (a.name < b.name));
     writeFile(`./classes.json`, JSON.stringify(classes), 'utf8', () => {});
-    console.log(`${entryPoint.path}/${entryPoint.name}.v-lac.json`)
     writeFile(`${entryPoint.path}/${entryPoint.name}.v-lac.json`, JSON.stringify([...allEndpoints, ...allModules]), 'utf8', () => {});
-    
 })
 
 

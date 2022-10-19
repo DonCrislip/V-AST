@@ -16,7 +16,7 @@
  */
 
 import { createRequire } from "module";
-import {writeFile, readFileSync} from 'fs'
+import {writeFile, readFileSync, lstatSync, readdirSync} from 'fs'
 import babelParser from '@babel/parser'
 import path from "path";
 import * as htmlparser2 from 'htmlparser2'
@@ -140,6 +140,7 @@ else {
         const methods = [];
         const callExpressions = [];
         const classes = []
+        
         data.forEach(obj => {
             let currentMethod = {};
             let end = 0
@@ -341,11 +342,14 @@ else {
     const getFullPath = (relativePath, parent) => {
         const lastIndex = relativePath.lastIndexOf('/');
         relativePath = relativePath.substring(lastIndex, 0);
+
         for (let alias in ALIASES) {
             if (relativePath.indexOf(alias) > -1) {
                 return relativePath.replace(alias, ALIASES[alias]);
             }
         }
+        
+        if (!relativePath.includes('.')) return relativePath
         return path.resolve(parent.path, relativePath)
     }
 
@@ -409,38 +413,51 @@ else {
                     'typescript'
                 ]
             })
-            // traverseObj(data, (child) => {
-            //     if (child.kind) child.type = ts.SyntaxKind[child.kind]
-            // })
-            // console.log(data.program.body)
             return data.program.body
         }
         catch (error) {
-            console.log(error)
+            // console.log('parse', file)
         }
     }
 
     const init = async (parent) => {
+        if (parent.path === '') return
+        
         await new Promise(async (resolve, reject) => {
+            let fullFilePath = `${parent.path}/${parent.name}${parent.ext}`;
+            const pathObj = path.parse(fullFilePath)
+            // console.log(pathObj)
+            
+            try{
+                if (lstatSync(fullFilePath).isDirectory()) {
+                    const contents = readdirSync(fullFilePath)
+                    fullFilePath = `${fullFilePath}/${contents[0]}`
+                }
+                else if (pathObj.ext === '') {
+                    fullFilePath = `${fullFilePath}${parent.ext}`
+                }
+            }
+            catch(error){
+                // console.log(error)
+            }
+            
             try {
-                if (!parent.ext || 
-                    parent.ext === '.scss' ||
+                if (parent.ext === '.scss' ||
                     parent.ext === '.svg' ||
                     parent.ext === '.css') {return resolve('nothing') };
-                const fullFilePath = `${parent.path}/${parent.name}${parent.ext}`;
+                
                 const fileBuffer = readFileSync(fullFilePath)
-                let file = fileBuffer.toString();
-                let data,
+                let file = fileBuffer.toString(),
+                    data,
                     html = '',
-                    isTypescript = false;
-                const modules = [];
-                let fileStrArr = file.split('\n');
+                    fileStrArr = file.split('\n');
+
                 parent.size = fileStrArr.length;
                 if (parent.ext === '.vue') {
                     const startTemplate = fileStrArr.findIndex(o => o.includes('<template>'))
                     const lastIndex = fileStrArr.filter(o => o.includes('</template>'));
                     const endTemplate = fileStrArr.lastIndexOf(lastIndex[lastIndex.length - 1])
-                    const startScript = fileStrArr.findIndex(o => o.includes('<script '))
+                    const startScript = fileStrArr.findIndex(o => o.includes('<script ') || o.includes('<script>'))
                     const endScript = fileStrArr.findIndex(o => o.includes('</script>'))
 
                     html = fileStrArr.slice().splice(startTemplate + 1, endTemplate - 1 - startTemplate).join('\n');
@@ -489,7 +506,7 @@ else {
         })
 
     }
-
+    
     CONFIG.entryPoints.forEach(async entry => {
         const pathData = path.parse(entry.path)
         entryPoint = JSON.parse(JSON.stringify(MODULE))
@@ -511,6 +528,7 @@ else {
             if (Array.isArray(parent.classes)) {
                 for (const pClass of parent.classes) {
                     const allExps = []
+                    
                     allModules.forEach(module => {
                         if (!module.callExpressions || module.id === parent.id) return
                         const exps = module.callExpressions.filter(_c => _c?.name === pClass.name).map(exp => exp.id)

@@ -1,14 +1,14 @@
-# V•LAC
-## V•LAC: Visual Learning & Auditing of your Code galaxy
+# V•AST
+## V•AST: Visualizing the Abstract Syntax Tree of your code galaxy
 ### Getting Started
 
-Install the **v•lac cli** package globally.
+Install the **V•AST cli** package globally.
 
-    npm i -g @doncrislip/v-lac
+    npm i -g @doncrislip/v-ast
 
-Then, you need to create a **v-lac.config.js** file.
+Then, you need to create a **v-ast.config.js** file.
 
-    v-lac init
+    v-ast init
 
 This will create a config file in your project's root dir. The config will look like this:
 
@@ -26,14 +26,14 @@ This will create a config file in your project's root dir. The config will look 
         ]
     }
 
-If you use aliases in your bundling, you will want to include them in this config file. You also need to define what entry points to use so V•LAC knows which files to parse.
+If you use aliases in your bundling, you will want to include them in this config file. You also need to define what entry points to use so V•AST knows which files to parse.
 
 Once you have this done, all you need to do is run:
 
-    v-lac
+    v-ast
 
-A json file will be created for each entry point inside the dir of the entry point. This json file will have the name of the entry point along with **.v-lac.json** appended to it. See the example below:
+A json file will be created for each entry point inside the dir of the entry point. This json file will have the name of the entry point along with **.v-ast.json** appended to it. See the example below:
 
     src/
         someEntryPoint.js
-        someEntryPoint.v-lac.json
+        someEntryPoint.v-ast.json

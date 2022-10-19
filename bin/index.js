@@ -24,7 +24,7 @@ import { guidGenerator, traverseObj } from '@doncrislip/simpleutils'
 import isHtmlElement from '../src/allHtmlElements.js'
 
 if (process.argv[2] === 'init') {
-    writeFile(`./v-lac.config.js`, 
+    writeFile(`./v-ast.config.js`, 
 `Object.defineProperty(exports, '__esModule', { value: true });
 
 module.exports = {
@@ -55,7 +55,7 @@ else {
 
     const require = createRequire(import.meta.url);
     const __dirname = process.cwd();
-    const CONFIG = require(`${__dirname}/v-lac.config.js`)
+    const CONFIG = require(`${__dirname}/v-ast.config.js`)
     const ALIASES = CONFIG.aliases
 
     let allModules = []
@@ -553,8 +553,8 @@ else {
         // console.log('child count', childCount)
         allEndpoints.sort((a, b) => (a.name > b.name) - (a.name < b.name));
         // writeFile(`./classes.json`, JSON.stringify(classes), 'utf8', () => {});
-        writeFile(`${entryPoint.path}/${entryPoint.name}.v-lac.json`, JSON.stringify([...allEndpoints, ...allModules]), 'utf8', () => {});
-        console.log(`finished writing ${entryPoint.path}/${entryPoint.name}.v-lac.json`)
+        writeFile(`${entryPoint.path}/${entryPoint.name}.v-ast.json`, JSON.stringify([...allEndpoints, ...allModules]), 'utf8', () => {});
+        console.log(`finished writing ${entryPoint.path}/${entryPoint.name}.v-ast.json`)
     })
 }
 

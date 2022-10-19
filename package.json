@@ -1,7 +1,7 @@
 {
-  "name": "@doncrislip/v-lac",
+  "name": "@doncrislip/v-ast",
   "version": "0.0.1",
-  "description": "V•LAC: Visual Learning & Auditing of your Code galaxy",
+  "description": "V•AST: Visualizing the Abstract Syntax Tree of your code galaxy",
   "main": "bin/index.js",
   "type": "module",
   "scripts": {
@@ -9,20 +9,20 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/DonCrislip/V-LAC.git"
+    "url": "git+https://github.com/DonCrislip/V-AST.git"
   },
   "author": "Don Crislip",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/DonCrislip/V-LAC/issues"
+    "url": "https://github.com/DonCrislip/V-AST/issues"
   },
-  "homepage": "https://github.com/DonCrislip/V-LAC#readme",
+  "homepage": "https://github.com/DonCrislip/V-AST#readme",
   "dependencies": {
     "@babel/parser": "^7.19.4",
     "@doncrislip/simpleutils": "^1.0.7",
     "htmlparser2": "^8.0.1"
   },
   "bin": {
-    "v-lac": "./bin/index.js"
+    "v-ast": "./bin/index.js"
   }
 }

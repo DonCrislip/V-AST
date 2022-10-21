@@ -6,7 +6,7 @@ Install the **V•AST cli** package globally.
 
     npm i -g @doncrislip/v-ast
 
-Next, you will need to initialize your V-AST application. Go to whichever directory you would like to run it in - it doesn't matter where :)
+Next, you will need to initialize your V•AST application. Go to whichever directory you would like to run it in - it doesn't matter where :)
 
     cd desktop/some-dir
 

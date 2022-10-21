@@ -18,7 +18,7 @@ import babelParser from '@babel/parser'
 import path from "path";
 import * as htmlparser2 from 'htmlparser2'
 import { guidGenerator, traverseObj } from '@doncrislip/simpleutils'
-import isHtmlElement from '../utilities/allHtmlElements.js'
+import isHtmlElement from '../utils/allHtmlElements.js'
 
 if (process.argv[2] === 'init') {
     const rootDir = import.meta.url.replace('/bin/index.js', '').replace('file://', '');

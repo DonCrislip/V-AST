@@ -6,34 +6,64 @@ Install the **V•AST cli** package globally.
 
     npm i -g @doncrislip/v-ast
 
-Then, you need to create a **v-ast.config.js** file.
+Next, you will need to initialize your V-AST application. Go to whichever directory you would like to run it in - it doesn't matter where :)
+
+    cd desktop/some-dir
+
+Then run:
 
     v-ast init
 
-This will create a config file in your project's root dir. The config will look like this:
+This will create a new project directory with the following files:
 
-    Object.defineProperty(exports, '__esModule', { value: true });
+    v-ast/
+        - favicon.ico
+        - index.html
+        - index.js
+        - package.json
+        - server.js
+        - v-ast.config.js
 
-    module.exports = {
-        aliases: {
-            // 'alias': './'
-        },
+Change into this directory:
+
+    cd v-ast
+
+Now, in your favorite text editor, open the **v-ast.config.js**. This is where you will define the entry points to all of the projects you would like to visualize. The config file will look something like this: 
+
+    export default {
         entryPoints: [
             // {
             //     name: 'App Name',
-            //     path: './path-to-entry-point'
+            //     path: '/absolute-path-to-entry-point',
+            //     aliases: {
+            //         'some-alias': '/absolute-path-for-alias'
+            //     }
             // }
         ]
     }
 
-If you use aliases in your bundling, you will want to include them in this config file. You also need to define what entry points to use so V•AST knows which files to parse.
+If you use aliases in your bundling, you will want to include them in this config file. Otherwise, keep the aliases as an empty object.
 
-Once you have this done, all you need to do is run:
+    aliases: {}
 
-    v-ast
+Once you have this done, you need to build the files V•AST will use:
 
-A json file will be created for each entry point inside the dir of the entry point. This json file will have the name of the entry point along with **.v-ast.json** appended to it. See the example below:
+    v-ast build
 
-    src/
-        someEntryPoint.js
-        someEntryPoint.v-ast.json
+A json file will be created for each entry point inside the v-ast dir. These json files will have the name of the entry point along with **.v-ast.json** appended to it. This command will also create a master entry point file. See the example below:
+
+    v-ast/
+        ...
+        - entrypoints.v-ast.js
+        - someProjectEntryPoint.v-ast.json
+        - anotherProjectEntryPoint.v-ast.json
+
+Now that is all left to do is run the project:
+
+    v-ast run
+
+This will initialize a server on port :8080
+
+    http://localhost:8080/
+
+Have fun!

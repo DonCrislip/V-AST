@@ -3,6 +3,9 @@
 <head>
 	<meta charset="UTF-8">
 	<title></title>
+    <base href="/" />
+    <script type="application/javascript" src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+    <script type="application/javascript" src="https://d3js.org/d3.v7.min.js"></script>
     <style>
         body {
             box-shadow: inset 0 0 135px 10px #000;
@@ -192,13 +195,20 @@
 <body style="height: 100%; margin: 0;">
     <div id="chart"></div>
     <div class="logo">
-        <?xml version="1.0" encoding="UTF-8"?><svg id="a" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 290.23 136.19"><polygon points="6.69 30.55 36.21 91.98 65.93 30.55 70.32 30.55 36.21 99.16 1.9 30.55 6.69 30.55" style="fill:#af78b9;"/><polygon points="231.54 99.96 197.23 31.34 163.12 99.96 167.51 99.96 197.23 38.52 226.76 99.96 231.54 99.96" style="fill:#af78b9;"/><path d="M104.83,100h55.89v-3.99h-51.7V30.98h-4.39c.6,0,.2,69.02,.2,69.02Z" style="fill:#af78b9;"/><path d="M259.51,96.42c-17.07,0-30.91-13.84-30.91-30.91s13.84-30.91,30.91-30.91c5.52,0,10.7,1.46,15.19,3.99-.6-1.49-1.05-3.05-1.53-4.59-4.19-1.82-8.8-2.83-13.66-2.83-18.96,0-34.33,15.37-34.33,34.33s15.37,34.33,34.33,34.33c11.63,0,21.91-5.79,28.12-14.64-.58-1.38-.95-2.93-1.25-4.42-5.32,9.34-15.35,15.63-26.87,15.63Z" style="fill:#af78b9;"/><path d="M80.12,52.56c-8.32,0-15.07,6.75-15.07,15.07s6.75,15.07,15.07,15.07,15.07-6.75,15.07-15.07-6.75-15.07-15.07-15.07Zm0,26.08c-6.08,0-11.01-4.93-11.01-11.01s4.93-11.01,11.01-11.01,11.01,4.93,11.01,11.01-4.93,11.01-11.01,11.01Z" style="fill:#b6f030;"/><path d="M143.75,3.99c3.95,0,7.81,.38,11.57,1.07,.6-.68,1.19-1.36,1.79-2.03-4.31-.89-8.78-1.36-13.36-1.36-31.19,0-57.3,21.69-64.11,50.81h2.38C88.78,24.66,113.84,3.99,143.75,3.99Z" style="fill:#464646;"/><path d="M164.46,127.61c-6.49,2.24-13.46,3.47-20.71,3.47-29.94,0-55.03-20.72-61.76-48.59h-2.38c6.77,29.17,32.91,50.91,64.14,50.91,7.84,0,15.36-1.38,22.33-3.89-.53-.64-1.08-1.27-1.62-1.9Z" style="fill:#464646;"/></svg>
+        <svg viewBox="0 0 285 131" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M4.79 28.87L34.31 89.31L64.03 28.87H68.42L34.31 97.49L0 28.87H4.79Z" fill="#B58ABE"/>
+            <path d="M161.42 98.29L127.11 29.67L93 98.29H97.39L127.11 38L156.63 98.29H161.42Z" fill="#B58ABE"/>
+            <path d="M78.22 50.89C69.9 50.89 63.15 57.64 63.15 65.96C63.15 74.28 69.9 81.03 78.22 81.03C86.54 81.03 93.29 74.28 93.29 65.96C93.29 57.64 86.54 50.89 78.22 50.89ZM78.22 76.97C72.14 76.97 67.21 72.04 67.21 65.96C67.21 59.88 72.14 54.95 78.22 54.95C84.3 54.95 89.23 59.88 89.23 65.96C89.23 72.04 84.3 76.97 78.22 76.97Z" fill="#B8D546"/>
+            <path d="M205 34.5V30H168V59.5H215V93H168V98H219V55H172.5V34.5H205Z" fill="#B58ABE"/>
+            <path d="M214 34.5V30H284.5V34.5H254V98H248.5V34.5H214Z" fill="#B58ABE"/>
+            <path d="M190 25.9015C178.518 11.8558 161.056 2.88971 141.5 2.88971C112.813 2.88971 88.633 22.1821 81.2252 48.5H78.2277C85.714 20.5671 111.205 0 141.5 0C162.795 0 181.716 10.1622 193.679 25.9015H190Z" fill="#555"/>
+            <path d="M141.5 128.11C162.679 128.11 181.401 117.595 192.732 101.5H196.228C184.515 119.272 164.377 131 141.5 131C111.75 131 86.6325 111.166 78.6491 84H81.6679C89.5582 109.548 113.361 128.11 141.5 128.11Z" fill="#555"/>
+        </svg>
 	</div>
     <div id="vue-app">
         <div class="code-system-select">
             <select v-model="selectedEntryPoint" @change="handleEntryPointChange(selectedEntryPoint)">
-                <option :value="null">Entire Code Galaxy</option>
-                <option v-for="entryPoint in entryPoints" :key="entryPoint" :value="entryPoint">{{entryPoint}}</option>
+                <option v-for="entryPoint in entryPoints" :key="entryPoint.id" :value="entryPoint.id">{{entryPoint.name}}</option>
             </select>
         </div>
         <div id="info" v-if="obj">
@@ -297,6 +307,5 @@
         </div>
     </div>
 </body>
-<script src="/dv/docs/js/test.min.js"></script>
-<script src="/dv/docs/js/test-vc.min.js"></script>
+<script type="module" src="index.js"></script>
 </html>

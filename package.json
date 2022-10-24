@@ -1,6 +1,6 @@
 {
   "name": "@doncrislip/v-ast",
-  "version": "0.0.3-alpha",
+  "version": "0.1.0-alpha",
   "description": "V•AST: Visualizing the Abstract Syntax Tree of your code galaxy",
   "main": "bin/index.js",
   "type": "module",

@@ -1,5 +1,6 @@
 
 import entrypoints from './entrypoints.v-ast.js'
+import config from './v-ast.config.js'
 
 const groupEnum = {
     js: 0,
@@ -155,15 +156,21 @@ const vm = new Vue({
             return obj
         },
         entryPoints() {
-            const arr = [{
-                name: 'Entire Code Galaxy',
-                id: 'all'
-            }]
+            const arr = []
             for (const entry of this.allData) {
                 arr.push({
                     name: entry.name.replace('_', ' '),
                     id: entry.name
                 })
+            }
+            if (config.hasEntireCodeGalaxyOption || config.hasEntireCodeGalaxyOption === undefined) {
+                arr.unshift({
+                    name: 'Entire Code Galaxy',
+                    id: 'all'
+                })
+            }
+            else {
+                this.selectedEntryPoint = arr[0].id
             }
             return arr
         }
@@ -393,7 +400,6 @@ const vm = new Vue({
             this.serviceName
                 .attr("x", d => d.x)
                 .attr("y", d => d.y - 15);
-           
             this.circleGroup = this.svg.selectAll('.circles').selectAll('g')
                 .data(this.compData.nodes.filter(o => o.type === 'module'))
                 .join(enter => {

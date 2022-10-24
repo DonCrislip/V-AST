@@ -19,41 +19,16 @@ import babelParser from '@babel/parser'
 import path from "path";
 import * as htmlparser2 from 'htmlparser2'
 import { guidGenerator, traverseObj } from '@doncrislip/simpleutils'
-import isHtmlElement from '../utils/allHtmlElements.js'
+import isHtmlElement from '../lib/allHtmlElements.js'
+import init from '../lib/init.js'
 
 if (process.argv[2] === 'init') {
-    const rootDir = import.meta.url.replace('/bin/index.js', '').replace('file://', '');
-    mkdirSync('./v-ast/')
-    writeFileSync(`./v-ast/v-ast.config.js`, 
-`export default {
-    entryPoints: [
-        // {
-        //     name: 'App Name',
-        //     path: '/absolute-path-to-entry-point',
-        //     aliases: {
-        //         'some-alias': '/absolute-path-for-alias'
-        //     }
-        // }
-    ]
+    init()
 }
-`, 'utf8', () => {});
-    try {
-        const dir = readdirSync(`${rootDir}/src/`);
-        for (const file of dir) {
-            const fileCopy = readFileSync(`${rootDir}/src/${file}`)
-            writeFileSync(`./v-ast/${file}`, fileCopy)
-        }
-    } catch (err) {
-        console.error(err);
-    }
-}
-
 else if (process.argv[2] === 'run') {
     child_process.fork('./server.js')
 }
-
 else if (process.argv[2] === 'build') {
-        
     const typeKind = {
         ImportDeclaration: 'ImportDeclaration',
         ClassDeclaration: 'ClassDeclaration',
@@ -140,7 +115,7 @@ else if (process.argv[2] === 'build') {
             module.ext = pathObj.ext === '' ? parent.ext : pathObj.ext
             module.path = getFullPath(obj.source.value, parent);
             module.id = `${module.name}-${module.path}`;
-            console.log(module)
+            
             if (!parent.name.includes('docImports')) {
                 module.parents.push(getChildObj(parent))
             }

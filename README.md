@@ -31,6 +31,7 @@ Change into this directory:
 Now, in your favorite text editor, open the **v-ast.config.js**. This is where you will define the entry points to all of the projects you would like to visualize. The config file will look something like this: 
 
     export default {
+        hasEntireCodeGalaxyOption: true,
         entryPoints: [
             // {
             //     name: 'App Name',
@@ -46,7 +47,10 @@ If you use aliases in your bundling, you will want to include them in this confi
 
     aliases: {}
 
-Once you have this done, you need to build the files V•AST will use:
+> The **hasEntireCodeGalaxyOption** is set to true by default, but if you have a lot of entry points with a lot of code, you may want to switch this to **false** for performance reasons. 
+
+
+Once you have your entry points set up, you need to build the files V•AST will use:
 
     v-ast build
 

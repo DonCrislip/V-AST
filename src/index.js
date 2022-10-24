@@ -292,6 +292,7 @@ const vm = new Vue({
                             n.find(o => o.__data__.index === l.index).classList.add('selected', (l.source.id === e.target.__data__.id ? 'source' : 'target'))
                         })
                     })
+                    this.selectPlanet(e, vm.obj)
                 })
             this.node = this.circleGroup.append('circle')
                 .attr("fill", this.nodeFill)

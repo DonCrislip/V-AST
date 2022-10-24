@@ -10,6 +10,7 @@
  * - list out scoped css within parent info
  * - what is getting imported but not used
  * - hide/show code planets
+ * - handle NextJS routing as well as NuxtJS routing
  */
 
 import {writeFileSync, mkdirSync, readFileSync, lstatSync, readdirSync} from 'fs'
@@ -136,9 +137,10 @@ else if (process.argv[2] === 'build') {
             const module = JSON.parse(JSON.stringify(MODULE));
             const pathObj = path.parse(obj.source.value);
             module.name = pathObj.name;
-            module.ext = pathObj.ext //? pathObj.ext.substring(1) : pathObj.ext; // TODO: Need to handle if extenstion doesn't exist
+            module.ext = pathObj.ext === '' ? parent.ext : pathObj.ext
             module.path = getFullPath(obj.source.value, parent);
             module.id = `${module.name}-${module.path}`;
+            console.log(module)
             if (!parent.name.includes('docImports')) {
                 module.parents.push(getChildObj(parent))
             }

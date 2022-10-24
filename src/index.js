@@ -361,7 +361,7 @@ const vm = new Vue({
             
             d3.select('svg')
                 .call(this.zoom)
-                .call(this.zoom.transform, d3.zoomIdentity.scale(0.05))
+                .call(this.zoom.transform, d3.zoomIdentity.scale(0.13))
         },
         setNodeValues() {
             if (this.W) this.link.attr("stroke-width", ({index: i}) => this.W[i]);
@@ -392,32 +392,7 @@ const vm = new Vue({
             this.serviceName
                 .attr("x", d => d.x)
                 .attr("y", d => d.y - 15);
-            // this.link = this.svg.append("g")
-            //     .attr('class', 'lines')
-            //     .selectAll("line")
-            //     .data(this.links)
-            //     .join("line")
-            // this.circleGroup = this.svg.append("g")
-            //     .attr('class', 'circles')
-            //     .selectAll('g')
-            //     .data(this.nodes.filter(o => o.type === 'module'))
-            //     .enter().append('g').on('click', (e) => {
-            //         vm.obj = e.target.__data__;
-            //         this.node._groups.forEach(n => {
-            //             n.forEach(g => g.classList.remove('selected'))
-            //         })
-            //         e.target.classList.add('selected')
-
-            //         this.link._groups.forEach(n => {
-            //             n.forEach(g => g.classList.remove('selected', 'source', 'target'))
-            //         })
-            //         const arr = this.links.filter(l => l.source.id === e.target.__data__.id || l.target.id === e.target.__data__.id);
-            //         arr.forEach(l => {
-            //             this.link._groups.forEach(n => {
-            //                 n[l.index].classList.add('selected', (l.source.id === e.target.__data__.id ? 'source' : 'target'))
-            //             })
-            //         })
-            //     })
+           
             this.circleGroup = this.svg.selectAll('.circles').selectAll('g')
                 .data(this.compData.nodes.filter(o => o.type === 'module'))
                 .join(enter => {
@@ -454,72 +429,6 @@ const vm = new Vue({
                 })
             this.node = this.svg.selectAll('circle')
             this.text = this.svg.selectAll('.circles').selectAll('text')
-
-            // this.setNodeValues()
-                
-            // this.text = this.circleGroup.append('text')
-            //     .attr('text-anchor', 'middle')
-            //     .attr('class', 'module-name')
-            // this.connectorGroup = this.svg.append("g")
-            //     .attr('class', 'connectors')
-            //     .selectAll('g')
-            //     .data(this.nodes.filter(o => o.key))
-            //     .enter().append('g')
-            // this.connector = this.connectorGroup.append('text')
-            //     .attr('text-anchor', 'middle')
-            //     .attr('class', 'module-name')
-            //     .call(this.drag(this.simulation))
-            //     .on('click', (e) => {
-            //         vm.obj = e.target.__data__;
-            //         this.node._groups.forEach(n => {
-            //             n.forEach(g => g.classList.remove('selected'))
-            //         })
-            //         this.link._groups.forEach(n => {
-            //             n.forEach(g => g.classList.remove('selected', 'source', 'target'))
-            //         })
-            //         const arr = this.links.filter(l => l.source.id === e.target.__data__.id || l.target.id === e.target.__data__.id);
-            //         arr.forEach(l => {
-            //             this.link._groups.forEach(n => {
-            //                 n[l.index].classList.add('selected', (l.source.id === e.target.__data__.id ? 'source' : 'target'))
-            //             })
-            //         })
-            //         e.target.classList.add('selected')
-            //     })
-            // this.serviceGroup = this.svg.append("g")
-            //     .attr('class', 'endpoints')
-            //     .selectAll('g')
-            //     .data(this.nodes.filter(o => o.type === 'endpoint'))
-            //     .enter().append('g')
-            //     .on('click', (e) => {
-            //         vm.obj = e.target.__data__;
-            //         this.node._groups.forEach(n => {
-            //             n.forEach(g => g.classList.remove('selected'))
-            //         })
-            //         this.link._groups.forEach(n => {
-            //             n.forEach(g => g.classList.remove('selected', 'source', 'target'))
-            //         })
-            //         const arr = this.links.filter(l => l.source.id === e.target.__data__.id || l.target.id === e.target.__data__.id);
-            //         arr.forEach(l => {
-            //             this.link._groups.forEach(n => {
-            //                 n[l.index].classList.add('selected', (l.source.id === e.target.__data__.id ? 'source' : 'target'))
-            //             })
-            //         })
-            //         e.target.classList.add('selected')
-            //     })
-            // this.service = this.serviceGroup.append('path')
-            //     .attr("d", satelliteOutline)
-            //     .attr('class', 'satellite')
-            //     .call(this.drag(this.simulation))
-            // this.serviceName = this.serviceGroup.append('text')
-            //     .attr('text-anchor', 'middle')
-            //     .attr('class', 'module-name')
-            // this.simulation.force("link").initialize(this.compData.links)
-            // this.simulation.force("charge").initialize(this.compData.nodes)
-            // let interval = 0;
-            // while (interval < 300) {
-            //     this.ticked();
-            //     interval++
-            // }
             this.ticked();
         },
         handleEntryPointChange(entryPoint) {
@@ -562,35 +471,6 @@ const vm = new Vue({
                 }
             }
             this.updateChart()
-            // const svg = d3.select('svg')
-            // const linkStroke = "#444" // link stroke color
-            // const linkStrokeOpacity = 0.5 // link stroke opacity
-            // const linkStrokeWidth = 1.5 // given d in links, returns a stroke width in pixels
-            // const linkStrokeLinecap = "round"
-
-            // console.log(this.compData.links)
-            // svg.select('.lines').selectAll('line')
-            //     .data(this.compData.links)
-            //     .join(enter => enter.append('line')
-            //         .attr("stroke", typeof linkStroke !== "function" ? linkStroke : null)
-            //         .attr("stroke-opacity", linkStrokeOpacity)
-            //         .attr("stroke-width", typeof linkStrokeWidth !== "function" ? linkStrokeWidth : null)
-            //         .attr("stroke-linecap", linkStrokeLinecap), null, exit => { 
-            //         console.log(exit)
-            //         exit.remove()} 
-            //     )
-            // svg.select('.circles')
-            //     .selectAll('g')
-            //     .data(this.compData.nodes.filter(o => o.type === 'module'))
-            //     .join('g').exit().remove()
-            // svg.select('.connectors')
-            //     .selectAll('g')
-            //     .data(this.compData.nodes.filter(o => o.key))
-            //     .join('text').exit().remove()
-            // svg.select('.endpoints')
-            //     .selectAll('g')
-            //     .data(this.compData.nodes.filter(o => o.type === 'endpoint'))
-            //     .join('g').exit().remove()
         },
         selectPlanet(e, parent) {
             if (e.ctrlKey || e.metaKey) {

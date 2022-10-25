@@ -213,7 +213,7 @@
         </div>
         <div id="info" v-if="obj">
             <template v-if="obj.type === 'module'">
-                <h2><a :href="`https://gitlab.indiansfrontoffice.com/baseball-systems/front-end/dvweb/-/blob/beta/${obj.path}${obj.name}.${obj.ext}`" target="_blank">{{obj.name}}</a></h2>
+                <h2>{{obj.name}}</h2>
                 <hr />
                 <div class="info-wrapper">
                     <p><span class="left"># of Lines of code: </span><span class="right"><b>{{obj.size}}</b></span></p>
@@ -233,9 +233,7 @@
                     <b>List of methods ({{obj.methods.length}}):</b>
                     <div class="method-list">
                         <div v-for="(method, i) in obj.methods" :key="`${obj.name}-${method.name}-${i}`" class="item">
-                            <a :class="{'issue': method.implementationsCount < 1}" :href="`https://gitlab.indiansfrontoffice.com/search?search=${method.name}&project_id=30&group_id=138&nav_source=navbar&repository_ref=beta`" target="_blank">
-                                {{method.name}}{{method.implementationsCount < 1 ? ' (dead)' : null}} {{method.size}}
-                            </a>
+                            {{method.name}}{{method.implementationsCount < 1 ? ' (dead)' : null}} {{method.size}}
                         </div>
                     </div>
                     <hr />
@@ -263,7 +261,7 @@
                 </div>
             </template>
             <template v-else-if="obj.type === 'endpoint'">
-                <h2><a :href="`https://gitlab.indiansfrontoffice.com/search?search=${obj.name}&project_id=30&group_id=138&nav_source=navbar&repository_ref=beta`" target="_blank">{{obj.name}}</a></h2>
+                <h2>{{obj.name}}</h2>
                 <hr />
                 <div class="info-wrapper">
                     <b>List of verbs ({{obj.verbs.length}}):</b>
@@ -277,9 +275,7 @@
                     <b>List of children ({{obj.children.length}}):</b>
                     <div class="child-list">
                         <div v-for="child in obj.children" :key="`${obj.name}-${child.id}`" class="item">
-                            <a :href="`https://gitlab.indiansfrontoffice.com/search?search=${child.name}&project_id=30&group_id=138&nav_source=navbar&repository_ref=beta`" target="_blank">
-                                {{child.name}}
-                            </a>
+                            {{child.name}}
                         </div>
                     </div>
                 </div>
@@ -288,7 +284,7 @@
                 <h2>{{obj.key}}</h2>
                 <hr />
                 <div class="binding-wrapper">
-                    <p>Parent: <a :href="`https://gitlab.indiansfrontoffice.com/baseball-systems/front-end/dvweb/-/blob/beta/${obj.parentPath}${obj.parent}.${obj.parentExt}`" target="_blank">{{obj.parent}}</a></p>
+                    <p>Parent: {{obj.parent}}</p>
                     <p>Data Prop: <em>{{obj.value}}</em></p>
                     <p class="down-arrow">
                         <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -300,7 +296,7 @@
                             C18.354,14.614,14.613,18.354,10,18.354z"/>
                         </svg>
                     </p>
-                    <p>Child: <a :href="`https://gitlab.indiansfrontoffice.com/baseball-systems/front-end/dvweb/-/blob/beta/${obj.childPath}${obj.child}.${obj.childExt}`" target="_blank">{{obj.child}}</a></p>
+                    <p>Child: {{obj.child}}</p>
                     <p>{{obj.key}}="<em>{{obj.value}}</em>"</p>
                 </div>
             </template>

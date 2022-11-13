@@ -23,7 +23,7 @@ import isHtmlElement from '../lib/allHtmlElements.js'
 import init from '../lib/init.js'
 
 if (process.argv[2] === 'init') {
-    init()
+    init(import.meta.url)
 }
 else if (process.argv[2] === 'run') {
     child_process.fork('./server.js')

@@ -206,7 +206,7 @@
         </svg>
 	</div>
     <div id="vue-app">
-        <div class="code-system-select">
+        <div v-if="!showConfigScreen" class="code-system-select">
             <select v-model="selectedEntryPoint" @change="handleEntryPointChange(selectedEntryPoint)">
                 <option v-for="entryPoint in entryPoints" :key="entryPoint.id" :value="entryPoint.id">{{entryPoint.name}}</option>
             </select>

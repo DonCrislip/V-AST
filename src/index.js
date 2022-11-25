@@ -82,6 +82,7 @@ const vm = new Vue({
     data() {
         return {
             allData: allData,
+            showConfigScreen: true,
             obj: null,
             selectedEntryPoint: 'all',
             nodeId: d => d,
@@ -496,6 +497,12 @@ const vm = new Vue({
         }
     },
     mounted() {
-        this.chart()
+        if (this.allData.length) {
+            this.showConfigScreen = false
+            this.chart()
+        }
+        else {
+            this.showConfigScreen = true
+        }
     }
 })

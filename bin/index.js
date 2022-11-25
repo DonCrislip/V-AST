@@ -26,7 +26,7 @@ if (process.argv[2] === 'init') {
     init(import.meta.url)
 }
 else if (process.argv[2] === 'run') {
-    child_process.fork('./server.js')
+    child_process.fork('./src/server.js')
 }
 else if (process.argv[2] === 'build') {
     const typeKind = {
@@ -40,7 +40,7 @@ else if (process.argv[2] === 'build') {
     }
     const __dirname = process.cwd();
 
-    import(`${__dirname}/v-ast.config.js`).then((module) => {
+    import(`./lib/v-ast.config.js`).then((module) => {
         const CONFIG = module.default
 
         let allModules = []

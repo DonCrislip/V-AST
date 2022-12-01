@@ -20,15 +20,8 @@ import path from "path";
 import * as htmlparser2 from 'htmlparser2'
 import { guidGenerator, traverseObj } from '@doncrislip/simpleutils'
 import isHtmlElement from '../lib/allHtmlElements.js'
-import init from '../lib/init.js'
 
-if (process.argv[2] === 'init') {
-    init(import.meta.url)
-}
-else if (process.argv[2] === 'run') {
-    child_process.fork('./src/server.js')
-}
-else if (process.argv[2] === 'build') {
+if (process.argv[2] === 'build') {
     const typeKind = {
         ImportDeclaration: 'ImportDeclaration',
         ClassDeclaration: 'ClassDeclaration',
@@ -40,7 +33,7 @@ else if (process.argv[2] === 'build') {
     }
     const __dirname = process.cwd();
 
-    import(`./lib/v-ast.config.js`).then((module) => {
+    import(`../src/v-ast.config.js`).then((module) => {
         const CONFIG = module.default
 
         let allModules = []
@@ -333,8 +326,8 @@ else if (process.argv[2] === 'build') {
             relativePath = relativePath.substring(lastIndex, 0);
 
             for (let alias in aliases) {
-                if (relativePath.indexOf(alias) > -1) {
-                    return relativePath.replace(alias, aliases[alias]);
+                if (relativePath.indexOf(alias.name) > -1) {
+                    return relativePath.replace(alias, alias.path);
                 }
             }
             
@@ -542,7 +535,7 @@ else if (process.argv[2] === 'build') {
             }
             allEndpoints.sort((a, b) => (a.name > b.name) - (a.name < b.name));
             const importName = entryPoint.displayName.replace(' ', '_')
-            writeFileSync(`./${importName}.v-ast.json`, JSON.stringify([...allEndpoints, ...allModules]), 'utf8', () => {});
+            writeFileSync(`./build/${importName}.v-ast.json`, JSON.stringify([...allEndpoints, ...allModules]), 'utf8', () => {});
             console.log(`finished writing ${entryPoint.path}/${importName}.v-ast.json`)
             ALL_IMPORTS.push({
                 name: importName,
@@ -558,8 +551,11 @@ else if (process.argv[2] === 'build') {
             entrypointsFile += i === ALL_IMPORTS.length - 1 ? ALL_IMPORTS[i].name : ALL_IMPORTS[i].name + ','
         }
         entrypointsFile += '}'
-        writeFileSync(`./entrypoints.v-ast.js`, entrypointsFile, 'utf8', () => {});
+        writeFileSync(`./build/entrypoints.v-ast.js`, entrypointsFile, 'utf8', () => {});
         console.log('FINISHED ALL FILES')
     })
+}
+else {
+    child_process.fork('./src/server.js')
 }
 

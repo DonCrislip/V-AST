@@ -1,13 +1,1 @@
-export default {
-    hasEntireCodeGalaxyOption: true,
-    apiLiterals: [],
-    entryPoints: [
-        // {
-        //     name: 'App Name',
-        //     path: '/absolute-path-to-entry-point',
-        //     aliases: {
-        //         'some-alias': '/absolute-path-for-alias'
-        //     }
-        // }
-    ]
-}
+export default {"hasEntireCodeGalaxyOption":false,"apiLiterals":[],"entryPoints":[{"name":"Portfolio","path":"/Users/doncrislip/Projects/Portfolio/pages/_app.tsx","aliases":[]}]}

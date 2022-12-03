@@ -1,0 +1,116 @@
+<template>
+    <div v-show="!showConfigScreen" style="display: flex; height: 100%;">
+        <section style="position: relative">
+            <div id="chart"></div>
+            <div id="config-options" @click="showConfigScreen = true">Config</div>
+            <div class="logo">
+                <svg viewBox="0 0 285 131" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4.79 28.87L34.31 89.31L64.03 28.87H68.42L34.31 97.49L0 28.87H4.79Z" fill="#B58ABE"/>
+                    <path d="M161.42 98.29L127.11 29.67L93 98.29H97.39L127.11 38L156.63 98.29H161.42Z" fill="#B58ABE"/>
+                    <path d="M78.22 50.89C69.9 50.89 63.15 57.64 63.15 65.96C63.15 74.28 69.9 81.03 78.22 81.03C86.54 81.03 93.29 74.28 93.29 65.96C93.29 57.64 86.54 50.89 78.22 50.89ZM78.22 76.97C72.14 76.97 67.21 72.04 67.21 65.96C67.21 59.88 72.14 54.95 78.22 54.95C84.3 54.95 89.23 59.88 89.23 65.96C89.23 72.04 84.3 76.97 78.22 76.97Z" fill="#B8D546"/>
+                    <path d="M205 34.5V30H168V59.5H215V93H168V98H219V55H172.5V34.5H205Z" fill="#B58ABE"/>
+                    <path d="M214 34.5V30H284.5V34.5H254V98H248.5V34.5H214Z" fill="#B58ABE"/>
+                    <path d="M190 25.9015C178.518 11.8558 161.056 2.88971 141.5 2.88971C112.813 2.88971 88.633 22.1821 81.2252 48.5H78.2277C85.714 20.5671 111.205 0 141.5 0C162.795 0 181.716 10.1622 193.679 25.9015H190Z" fill="#555"/>
+                    <path d="M141.5 128.11C162.679 128.11 181.401 117.595 192.732 101.5H196.228C184.515 119.272 164.377 131 141.5 131C111.75 131 86.6325 111.166 78.6491 84H81.6679C89.5582 109.548 113.361 128.11 141.5 128.11Z" fill="#555"/>
+                </svg>
+            </div>
+            <div class="code-system-select">
+                <select v-model="selectedEntryPoint" @change="handleEntryPointChange(selectedEntryPoint)">
+                    <option v-for="entryPoint in entryPoints" :key="entryPoint.id" :value="entryPoint.id">{{entryPoint.name}}</option>
+                </select>
+            </div>
+        </section>
+        <section>
+            <div id="info" v-if="obj">
+                <template v-if="obj.type === 'module'">
+                    <h2>{{obj.name}}</h2>
+                    <hr />
+                    <div class="info-wrapper">
+                        <p><span class="left"># of Lines of code: </span><span class="right"><b>{{obj.size}}</b></span></p>
+                        <p><span class="left"># of Methods: </span><span class="right"><b>{{obj.methods.length}}</b></span></p>
+                        <p><span class="left"># of Dead methods: </span><span class="right"><b>{{obj.methods.filter(o => o.implementationsCount === 0).length}}</b></span></p>
+                        <hr />
+                        <b>List of parents ({{obj.parents.length}}):</b>
+                        <div class="parent-list">
+                            <div v-for="parent in obj.parents" :key="parent.id" class="item" @click="selectPlanet($event, parent)">{{parent.name}}</div>
+                        </div>
+                        <hr />
+                        <b>List of children ({{obj.children.length}}):</b>
+                        <div class="child-list">
+                            <div v-for="child in obj.children" :key="`${obj.name}-${child.name}`" class="item" @click="selectPlanet($event, child)">{{child.name}}</div>
+                        </div>
+                        <hr />
+                        <b>List of methods ({{obj.methods.length}}):</b>
+                        <div class="method-list">
+                            <div v-for="(method, i) in obj.methods" :key="`${obj.name}-${method.name}-${i}`" class="item">
+                                {{method.name}}{{method.implementationsCount < 1 ? ' (dead)' : null}} {{method.size}}
+                            </div>
+                        </div>
+                        <hr />
+                        <b>List of component bindings ({{componentBindings.length}}):</b>
+                        <div class="binding-list">
+                            <div v-for="(binding, i) in componentBindings" :key="`${obj.name}-${binding.name}-${i}`" class="item">
+                                <span class="info-tag-name">{{binding.name}}{{binding.attrId ? `#${binding.attrId}` : null}}</span>
+                                <div v-for="(bind, j) in binding.vBind" :key="`${obj.name}-${binding.name}-${i}-${bind.key}-${j}`">
+                                    <span class="info-key-arrow">---></span> {{bind.key}}<br/>
+                                    <span class="info-value-arrow">------></span> {{bind.value}}
+                                </div>
+                            </div>
+                        </div>
+                        <hr />
+                        <b>List of element bindings ({{elementBindings.length}}):</b>
+                        <div class="binding-list">
+                            <div v-for="(binding, i) in elementBindings" :key="`${obj.name}-${binding.name}-${i}`" class="item">
+                                <span class="info-tag-name">{{binding.name}}{{binding.attrId ? `#${binding.attrId}` : null}}</span>
+                                <div v-for="(bind, j) in binding.vBind" :key="`${obj.name}-${binding.name}-${i}-${bind.key}-${j}`">
+                                    <span class="info-key-arrow">---></span> {{bind.key}}<br/>
+                                    <span class="info-value-arrow">------></span> {{bind.value}}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+                <template v-else-if="obj.type === 'endpoint'">
+                    <h2>{{obj.name}}</h2>
+                    <hr />
+                    <div class="info-wrapper">
+                        <b>List of verbs ({{obj.verbs.length}}):</b>
+                        <div class="verb-list">
+                            <div v-for="(verb, i) in obj.verbs" :key="`${obj.name}-${verb}-${i}`" class="item">
+                                {{verb}}
+                            </div>
+                            <div v-if="!obj.verbs.length">GET</div>
+                        </div>
+                        <hr />
+                        <b>List of children ({{obj.children.length}}):</b>
+                        <div class="child-list">
+                            <div v-for="child in obj.children" :key="`${obj.name}-${child.id}`" class="item">
+                                {{child.name}}
+                            </div>
+                        </div>
+                    </div>
+                </template>
+                <template v-else>
+                    <h2>{{obj.key}}</h2>
+                    <hr />
+                    <div class="binding-wrapper">
+                        <p>Parent: {{obj.parent}}</p>
+                        <p>Data Prop: <em>{{obj.value}}</em></p>
+                        <p class="down-arrow">
+                            <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+                                    x="0px" y="0px" viewBox="0 0 20 20" enable-background="new 0 0 20 20" xml:space="preserve">
+                            <path d="M12.505,8.698L10,11L7.494,8.698c-0.198-0.196-0.518-0.196-0.718,0c-0.197,0.196-0.197,0.515,0,0.71l2.864,2.807
+                                c0.199,0.196,0.52,0.196,0.717,0l2.864-2.807c0.199-0.195,0.198-0.514,0-0.71C13.024,8.502,12.704,8.502,12.505,8.698z M10,0.4
+                                c-5.302,0-9.6,4.298-9.6,9.6c0,5.303,4.298,9.6,9.6,9.6s9.6-4.297,9.6-9.6C19.6,4.698,15.302,0.4,10,0.4z M10,18.354
+                                c-4.615,0-8.354-3.74-8.354-8.354c0-4.614,3.739-8.354,8.354-8.354c4.613,0,8.354,3.74,8.354,8.354
+                                C18.354,14.614,14.613,18.354,10,18.354z"/>
+                            </svg>
+                        </p>
+                        <p>Child: {{obj.child}}</p>
+                        <p>{{obj.key}}="<em>{{obj.value}}</em>"</p>
+                    </div>
+                </template>
+            </div>
+        </section>
+    </div>
+</template>

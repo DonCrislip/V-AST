@@ -60,8 +60,8 @@ const vm = new Vue({
             serviceGroup: null,
             service: null,
             serviceName: null,
-            apiLiterals: [],
-            configEntryPoints: [],
+            apiLiterals: config.apiLiterals,
+            configEntryPoints: config.entryPoints,
             showEntireCodeGalaxy: config.hasEntireCodeGalaxyOption
         }
     },
@@ -290,7 +290,7 @@ const vm = new Vue({
                 .attr('transform', e.transform);
         },
         chart() {
-            if (this.svg) {
+            if (document.getElementById('chart').getElementsByTagName('svg').length) {
                 document.getElementById('chart').getElementsByTagName('svg')[0].remove()
             }
 

@@ -1,0 +1,53 @@
+<template>
+    <div v-show="showConfigScreen">
+        <h2>Before you can start using V•AST, we need to set some simple configurations. These configurations are not permanent and they can be edited at any time.</h2>
+        <fieldset>
+            <legend>Options</legend>
+            <label>Include entire code galaxy as an option:</label>
+            <select v-model="showEntireCodeGalaxy">
+                <option :value="true">True</option>
+                <option :value="false">False</option>
+            </select>
+        </fieldset>
+        <fieldset>
+            <legend>API Literals</legend>
+            <template v-for="api in apiLiterals">
+
+            </template>
+            <button type="button" @click="addApiLiteral">+ Add API Literal</button>
+        </fieldset>
+        <fieldset>
+            <legend>Entry Points</legend>
+            <template v-for="entryPoint in configEntryPoints">
+                <div>
+                    <div>
+                        <div>
+                            <input type="text" placeholder="Name" v-model="entryPoint.name" />
+                        </div>
+                        <div>
+                            <input type="text" placeholder="Absolute Path" v-model="entryPoint.path" />
+                        </div>
+                        <div>
+                            <template v-for="alias in entryPoint.aliases">
+                                <div>
+                                    <input type="text" placeholder="Alias Name" v-model="alias.name" />
+                                    <input type="text" placeholder="Alias Path" v-model="alias.path" />
+                                    <button type="button" @click="removeObjFromArray(alias, entryPoint.aliases)">X</button>
+                                </div>
+                            </template>
+                            <div>
+                                <button type="button" @click="addAlias(entryPoint.aliases)">+ Add Alias</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <button type="button" @click="removeObjFromArray(entryPoint, configEntryPoints)">X</button>
+                    </div>
+                </div>
+            </template>
+            <button type="button" @click="addEntryPoint">+ Add Entry Point</button>
+        </fieldset>
+        <button type="button" @click="updateConfig" :disabled="!configEntryPoints.length">Update</button>
+        <button type="button" @click="showConfigScreen = false">Cancel</button>
+    </div>
+</template>

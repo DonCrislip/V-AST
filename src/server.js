@@ -15,13 +15,13 @@ http.createServer(function(request, response) {
         '.js':   "text/javascript",
         '.json':  "application/json"
     };
-
-    if (request.url === '/update' && request.method === 'POST') {
+    if (request.url === '/src/update' && request.method === 'POST') {
         const res = response.req
         res.setEncoding('utf8');
         res.on('data', (chunk) => {
             const config = `export default ${chunk}`
             fs.writeFile('src/v-ast.config.js', config, (res) => {
+                child_process.exec('rm build/*')
                 child_process.exec('v-ast build', async (error) => {
                     if (error) { 
                         console.error('ERROR', error)
@@ -29,7 +29,8 @@ http.createServer(function(request, response) {
                         response.end();
                     }
                     else {
-                        const {default: data} = await import('../build/entrypoints.v-ast.js')
+                        const dt = new Date()
+                        const {default: data} = await import(`../build/entrypoints.v-ast.js?${dt.getMilliseconds()}`)
                         response.write(JSON.stringify(data));
                         response.end();
                     }
@@ -48,6 +49,20 @@ http.createServer(function(request, response) {
                     response.write(err + "\n");
                     response.end();
                     return;
+                }
+
+                if (filename.includes('index.html')) {
+
+                    const config = fs.readFileSync(path.join(process.cwd(), 'src/templates/config.htmv'), 'utf8')
+                    const galaxy = fs.readFileSync(path.join(process.cwd(), 'src/templates/galaxy.htmv'), 'utf8')
+
+                    const html = file.split('<!-- content -->')
+                    const head = html[0]
+                    const foot = html[1]
+                    file = `${head}
+                    ${config}
+                    ${galaxy}
+                    ${foot}`
                 }
     
                 const headers = {};

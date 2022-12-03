@@ -1,1 +1,1 @@
-export default {"hasEntireCodeGalaxyOption":false,"apiLiterals":[],"entryPoints":[{"name":"Portfolio","path":"/Users/doncrislip/Projects/Portfolio/pages/_app.tsx","aliases":[]}]}
+export default {"hasEntireCodeGalaxyOption":true,"apiLiterals":[],"entryPoints":[{"name":"Portfolio","path":"/Users/doncrislip/Projects/Portfolio/pages/_app.tsx","aliases":[]}]}

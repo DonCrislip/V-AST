@@ -1,0 +1,198 @@
+@import url(./variables.css);
+/* 
+GLOBAL STYLES
+*/
+body {
+    box-shadow: inset 0 0 135px var(--s-2) var(--c-2);
+    background-color: var(--c-6);
+    overflow: hidden;
+    font-family: 'calibri', arial;
+    font-weight: lighter;
+    font-size: var(--sz-3);
+    line-height: var(--sz-5);
+    color: var(--c-1);
+}
+select {
+    border: 1px solid var(--c-1);
+    border-radius: var(--s-1);
+    background-color: transparent;
+    color: var(--c-1);
+    padding: var(--s-1) var(--s-3);
+}
+
+
+#config-options {
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+#info {
+    top: 0;
+    right: 0;
+    width: 300px;
+    height: calc(100% - 10px);
+    background: var(--c-6);
+    border-left: 1px solid var(--c-7);
+    padding: 0 var(--s-1);
+    box-shadow: -3px 0 20px 5px var(--c-2)
+}
+#info h2 {
+    margin: 0;
+    padding: var(--s-2) 0;
+    text-align: center;
+    font-weight: lighter;
+    line-height: 2rem;
+}
+#info p {
+    margin: var(--s-2) 0;
+}
+#info b {
+    font-weight: normal;
+}
+#info .binding-wrapper {
+    text-align: center;
+}
+#info .down-arrow svg {
+    width: 3.5rem;
+    fill: var(--c-4);
+}
+#info .info-wrapper, 
+#info .binding-wrapper {
+    height: calc(100% - 90px);
+    overflow-y: auto;
+}
+#info .info-wrapper::-webkit-scrollbar, 
+#info .binding-wrapper::-webkit-scrollbar {
+    width: var(--s-1);
+}
+#info .info-wrapper::-webkit-scrollbar:horizontal,
+#info .binding-wrapper::-webkit-scrollbar:horizontal {
+    height: var(--s-1);
+}
+#info .info-wrapper::-webkit-scrollbar-corner, 
+#info .binding-wrapper::-webkit-scrollbar-corner {
+    display: none;
+}
+#info .info-wrapper::-webkit-scrollbar-thumb,
+#info .binding-wrapper::-webkit-scrollbar-thumb {
+    width: var(--s-1);
+    background-color: var(--c-3);
+    border-radius: var(--s-1);
+}
+#info .info-tag-name {
+    color: var(--c-1);
+}
+#info .info-key-arrow {
+    color: var(--c-3);
+}
+#info .info-value-arrow {
+    color: var(--c-4);
+}
+#info .parent-list {
+    margin-bottom: var(--s-2);
+} 
+#info .child-list {
+    margin-bottom: var(--s-2);
+}
+#info .binding-list {
+    margin-bottom: var(--s-2);
+}
+#info .binding-list .item {
+    margin-top: var(--s-1);
+}
+#info .item {
+    color: var(--c-7);
+    cursor: pointer;
+}
+#info .left, #info .right {
+    display: inline-flex;
+    padding: 0 var(--s-1);
+}
+#info .left {
+    width: 50%;
+    justify-content: end;
+}
+#info hr {
+    border-color: var(--c-5);
+    border-style: solid;
+}
+#info em {
+    font-style: normal;
+    color: var(--c-3);
+}
+#info a, #info a:hover, #info a:visited {
+    color: #83C9D8;
+    text-decoration: none;
+}
+#info a.issue, #info a.issue:hover, #info a.issue:visited {
+    color: var(--c-8);
+}
+#chart {
+    height: 100%;
+}
+#chart .module-name {
+    font-size: 6px;
+    font-weight: normal;
+    fill: var(--c-1);
+    cursor: pointer;
+}
+#chart circle {
+    stroke: var(--c-2);
+    cursor: pointer;
+}
+#chart circle.selected {
+    stroke: var(--c-9);
+}
+#chart line.selected {
+    stroke: var(--c-9);
+    stroke-opacity: 1;
+    /* animation: pulse 10s infinite;
+    -webkit-animation: pulse 10s infinite; */
+}
+#chart line.selected.target {
+    stroke: var(--c-4);
+}
+#chart line.selected.source {
+    stroke: var(--c-3);
+}
+#chart .satellite {
+    transform: scale(0.1);
+    fill: var(--c-7);
+    cursor: pointer;
+}
+.logo {
+    position: fixed;
+    top: var(--s-3);
+    left: var(--s-3);
+    width: 100px;
+}
+.logo svg {
+    filter: drop-shadow(0px 2px 1px rgb(0 0 0 / 1));
+}
+.code-system-select {
+    position: absolute;
+    top: var(--s-3);
+    left: 0;
+    right: 0;
+    margin: auto;
+    width: 100px;
+}
+@keyframes pulse {
+    0%   { stroke: #ff0000 }
+    17%  { stroke: var(--c-1)f00 }
+    33%  { stroke: #00ff00 }
+    50%  { stroke: #00ffff }
+    67%  { stroke: #0000ff }
+    83%  { stroke: #ff00ff }
+    100% { stroke: #ff0000 }
+    }
+
+    @-webkit-keyframes pulse {
+    0%   { stroke: #ff0000 }
+    17%  { stroke: var(--c-1)f00 }
+    33%  { stroke: #00ff00 }
+    50%  { stroke: #00ffff }
+    67%  { stroke: #0000ff }
+    83%  { stroke: #ff00ff }
+    100% { stroke: #ff0000 }
+}

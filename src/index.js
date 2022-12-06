@@ -556,3 +556,17 @@ const vm = new Vue({
         this.handleViews()
     }
 })
+
+window.addEventListener('beforeunload', (e) => {
+    fetch('close', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            isClosing: true
+        })
+    }).then(null, error => {
+        console.log(error)
+    })
+})

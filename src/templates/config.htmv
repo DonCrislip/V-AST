@@ -19,13 +19,11 @@
         <fieldset>
             <legend>Entry Points</legend>
             <template v-for="entryPoint in configEntryPoints">
-                <div>
+                <div class="field-wrapper">
                     <div>
-                        <div>
-                            <input type="text" placeholder="Name" v-model="entryPoint.name" />
-                        </div>
-                        <div>
-                            <input type="text" placeholder="Absolute Path" v-model="entryPoint.path" />
+                        <div class="field-wrapper">
+                            <input type="text" class="entry-point-name" placeholder="Name" v-model="entryPoint.name" />
+                            <input type="text" class="entry-point-path" placeholder="Absolute Path" v-model="entryPoint.path" />
                         </div>
                         <div>
                             <template v-for="alias in entryPoint.aliases">
@@ -47,7 +45,9 @@
             </template>
             <button type="button" @click="addEntryPoint">+ Add Entry Point</button>
         </fieldset>
-        <button type="button" @click="updateConfig" :disabled="!configEntryPoints.length">Update</button>
-        <button type="button" @click="showConfigScreen = false">Cancel</button>
+        <fieldset>
+            <button type="button" class="cta" @click="updateConfig" :disabled="!configEntryPoints.length">Update</button>
+            <button type="button" @click="showConfigScreen = false">Cancel</button>
+        </fieldset>
     </div>
 </template>

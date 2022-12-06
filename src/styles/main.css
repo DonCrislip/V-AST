@@ -19,8 +19,49 @@ select {
     color: var(--c-1);
     padding: var(--s-1) var(--s-3);
 }
+button {
+    border: 1px solid var(--c-3);
+    border-radius: var(--s-1);
+    background-color: var(--c-2);
+    color: var(--c-1);
+    padding: var(--s-1) var(--s-3);
+    cursor: pointer;
+}
+button:disabled {
+    border: 1px solid var(--c-5);
+    background-color: transparent;
+    color: var(--c-5);
+    cursor: auto;
+}
+input[type=text] {
+    border: 1px solid var(--c-1);
+    border-radius: var(--s-1);
+    background: var(--c-2);
+    padding: var(--s-1) var(--s-3);
+    color: var(--s-1)
+}
+fieldset {
+    margin: var(--s-2);
+    border: 1px solid var(--c-5);
+    border-radius: var(--s-1);
+}
+legend {
+    text-transform: uppercase;
+}
 
-
+.cta {
+    border: 4px double var(--c-4);
+}
+.field-wrapper {
+    display: flex;
+    gap: 1rem;
+}
+.entry-point-name {
+    width: 10rem;
+}
+.entry-point-path {
+    width: 35rem;
+}
 #config-options {
     position: absolute;
     top: 0;

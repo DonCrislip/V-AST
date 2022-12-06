@@ -21,6 +21,8 @@ import * as htmlparser2 from 'htmlparser2'
 import { guidGenerator, traverseObj } from '@doncrislip/simpleutils'
 import isHtmlElement from '../lib/allHtmlElements.js'
 
+const rootDir = import.meta.url.replace('/bin/index.js', '').replace('file://', '');
+
 if (process.argv[2] === 'build') {
     const typeKind = {
         ImportDeclaration: 'ImportDeclaration',
@@ -556,6 +558,6 @@ if (process.argv[2] === 'build') {
     })
 }
 else {
-    child_process.fork('./src/server.js')
+    child_process.fork(`${rootDir}/src/server.js`)
 }
 

@@ -38,6 +38,9 @@ http.createServer(function(request, response) {
             })
         });
     }
+    else if (request.url === '/src/close' && request.method === 'POST') {
+        child_process.exec(`osascript -e 'quit app "vast"'`)
+    }
     else {
         fs.access(filename, function() {
         
@@ -80,5 +83,7 @@ http.createServer(function(request, response) {
 
 console.log("Static file server running at: http://localhost:" + port + "");
 
+console.log(import.meta.url)
+
 // TODO: switch for different OS and browsers
-child_process.exec('sh ./src/browser.sh')
+child_process.exec(`sh ./src/browser.sh`)

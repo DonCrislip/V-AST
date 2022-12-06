@@ -6,9 +6,11 @@ import child_process from 'child_process'
 
 const port = process.argv[2] || 8080;
 
+const rootDir = import.meta.url.replace('src/server.js', '').replace('file://', '');
+
 http.createServer(function(request, response) {
-    const uri =  request.url 
-    let filename = path.join(process.cwd(), uri)
+    const uri = request.url 
+    let filename = path.join(rootDir, uri)
     const contentTypesByExtension = {
         '.html': "text/html",
         '.css':  "text/css",
@@ -56,8 +58,8 @@ http.createServer(function(request, response) {
 
                 if (filename.includes('index.html')) {
 
-                    const config = fs.readFileSync(path.join(process.cwd(), 'src/templates/config.htmv'), 'utf8')
-                    const galaxy = fs.readFileSync(path.join(process.cwd(), 'src/templates/galaxy.htmv'), 'utf8')
+                    const config = fs.readFileSync(path.join(rootDir, 'src/templates/config.htmv'), 'utf8')
+                    const galaxy = fs.readFileSync(path.join(rootDir, 'src/templates/galaxy.htmv'), 'utf8')
 
                     const html = file.split('<!-- content -->')
                     const head = html[0]
@@ -86,4 +88,4 @@ console.log("Static file server running at: http://localhost:" + port + "");
 console.log(import.meta.url)
 
 // TODO: switch for different OS and browsers
-child_process.exec(`sh ./src/browser.sh`)
+child_process.exec(`chmod +x "browser.sh" && sh browser.sh`)
